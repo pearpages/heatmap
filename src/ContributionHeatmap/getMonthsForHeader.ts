@@ -52,6 +52,11 @@ function getMonthsForHeader({
     months.push({ name: monthNames[currentMonth], span: currentSpan });
   }
 
+  // If the last month only has one week, add an extra week for better visual balance
+  if (months.length > 0 && months[months.length - 1].span === 1) {
+    months[months.length - 1].span = 2;
+  }
+
   return months;
 }
 

@@ -42,6 +42,10 @@
   max-width: 100%;
   overflow-x: auto;
 
+  &__month-header {
+    color: var(--color-text-muted);
+  }
+
   // Hover effect for the entire component
   &:hover {
     box-shadow: 0 4px 16px var(--shadow-color);
@@ -361,13 +365,8 @@
   
   &__day {
     animation: fadeInUp 0.3s ease-out;
-    
-    // Stagger animation for each day
-    @for $i from 1 through 20 {
-      &:nth-child(#{$i}) {
-        animation-delay: #{$i * 0.02}s;
-      }
-    }
+    animation-delay: var(--animation-delay, 0s);
+    animation-fill-mode: both;
   }
 }
 
