@@ -1,6 +1,14 @@
 {
   "name": "@pearpages/heatmap",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pearpages/heatmap"
+  },
+  "bugs": {
+    "url": "https://github.com/pearpages/heatmap/issues"
+  },
+  "homepage": "https://github.com/pearpages/heatmap#readme",
   "type": "module",
   "exports": {
     ".": {
