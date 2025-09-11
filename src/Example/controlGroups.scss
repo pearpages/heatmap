@@ -1,0 +1,61 @@
+// Control groups
+.control-group {
+  margin-bottom: 24px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &__label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+    font-size: 1rem;
+
+    @media (max-width: 768px) {
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+  }
+
+  &__buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      gap: 8px;
+    }
+  }
+
+  &__checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #555;
+    margin: 0;
+
+    @media (max-width: 768px) {
+      font-size: 0.9rem;
+    }
+
+    input[type='checkbox'] {
+      width: 18px;
+      height: 18px;
+      accent-color: #667eea;
+      cursor: pointer;
+
+      @media (max-width: 768px) {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    &:hover {
+      color: #333;
+    }
+  }
+}

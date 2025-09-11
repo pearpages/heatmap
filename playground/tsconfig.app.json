@@ -24,7 +24,7 @@
     "noUncheckedSideEffectImports": true,
 
     "paths": {
-      "@pearpages/poc": ["../src"]  // matches your alias
+      "@pearpages/heatmap": ["../src"]  // matches your alias
     }
   },
   "include": ["src"]

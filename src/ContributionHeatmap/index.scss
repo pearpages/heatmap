@@ -1,0 +1,402 @@
+// ContributionHeatmap.scss
+// GitHub-style contribution heatmap with BEM methodology
+
+.contribution-heatmap {
+  // Component variables
+  --day-size: 12px;
+  --day-gap: 2px;
+  --border-radius: 6px;
+  --transition: all 0.2s ease;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  
+  // Color scheme - GitHub-inspired
+  --color-bg: #ffffff;
+  --color-border: #e1e4e8;
+  --color-text: #24292f;
+  --color-text-muted: #656d76;
+  --color-level-0: #ebedf0;
+  --color-level-1: #9be9a8;
+  --color-level-2: #40c463;
+  --color-level-3: #30a14e;
+  --color-level-4: #216e39;
+  
+  // Dark mode support
+  @media (prefers-color-scheme: dark) {
+    --color-bg: #0d1117;
+    --color-border: #30363d;
+    --color-text: #f0f6fc;
+    --color-text-muted: #8b949e;
+    --color-level-0: #161b22;
+    --color-level-1: #0e4429;
+    --color-level-2: #006d32;
+    --color-level-3: #26a641;
+    --color-level-4: #39d353;
+  }
+  
+  background: var(--color-bg);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  box-shadow: 0 2px 8px var(--shadow-color);
+  border: 1px solid var(--color-border);
+  transition: var(--transition);
+  max-width: 100%;
+  overflow-x: auto;
+
+  // Hover effect for the entire component
+  &:hover {
+    box-shadow: 0 4px 16px var(--shadow-color);
+  }
+
+  // Mobile responsiveness
+  @media (max-width: 768px) {
+    --day-size: 10px;
+    --day-gap: 1px;
+    padding: 15px;
+    
+    // Reduce padding on mobile
+    &__container {
+      padding: 0;
+    }
+  }
+
+  @media (max-width: 480px) {
+    --day-size: 8px;
+    --day-gap: 1px;
+    padding: 10px;
+  }
+
+  // Header section
+  &__header {
+    margin-bottom: 16px;
+    text-align: center;
+    
+    @media (max-width: 768px) {
+      margin-bottom: 12px;
+    }
+  }
+
+  &__title {
+    color: var(--color-text);
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.2px;
+    
+    @media (max-width: 768px) {
+      font-size: 16px;
+    }
+  }
+
+  &__subtitle {
+    color: var(--color-text-muted);
+    font-size: 14px;
+    margin: 0;
+    font-weight: 400;
+    
+    @media (max-width: 768px) {
+      font-size: 12px;
+    }
+  }
+
+  // Main container
+  &__container {
+    display: grid;
+    gap: 8px;
+    padding: 16px;
+    background: var(--color-bg);
+    border-radius: calc(var(--border-radius) - 2px);
+    position: relative;
+    grid-template-areas: 
+      ". months"
+      "days grid";
+    grid-template-columns: 30px 1fr;
+    grid-template-rows: auto 1fr;
+    
+    @media (max-width: 768px) {
+      padding: 8px;
+      gap: 6px;
+      grid-template-columns: 20px 1fr;
+    }
+  }
+
+  // Month labels
+  &__months {
+    grid-area: months;
+    display: flex;
+    gap: var(--day-gap);
+    margin-bottom: 4px;
+    
+    @media (max-width: 768px) {
+      margin-bottom: 2px;
+    }
+  }
+
+  &__month {
+    color: var(--color-text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: left;
+    padding: 0 2px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    
+    @media (max-width: 768px) {
+      font-size: 10px;
+    }
+    
+    @media (max-width: 480px) {
+      font-size: 8px;
+    }
+  }
+
+  // Day labels (Mon, Tue, etc.)
+  &__days {
+    grid-area: days;
+    display: flex;
+    flex-direction: column;
+    gap: var(--day-gap);
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding-right: 4px;
+    
+    @media (max-width: 768px) {
+      padding-right: 2px;
+    }
+  }
+
+  &__day-label {
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: 500;
+    height: var(--day-size);
+    display: flex;
+    align-items: center;
+    width: 24px;
+    
+    @media (max-width: 768px) {
+      font-size: 8px;
+      width: 16px;
+    }
+    
+    @media (max-width: 480px) {
+      font-size: 7px;
+      width: 12px;
+    }
+  }
+
+  // Main grid
+  &__grid {
+    grid-area: grid;
+    display: flex;
+    gap: var(--day-gap);
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: var(--color-border);
+      border-radius: 2px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: var(--color-level-2);
+      border-radius: 2px;
+      
+      &:hover {
+        background: var(--color-level-3);
+      }
+    }
+  }
+
+  // Week column
+  &__week {
+    display: flex;
+    flex-direction: column;
+    gap: var(--day-gap);
+    min-width: var(--day-size);
+  }
+
+  // Individual day square
+  &__day {
+    width: var(--day-size);
+    height: var(--day-size);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    border: 1px solid transparent;
+    
+    // Contribution levels
+    &--level-0 {
+      background-color: var(--color-level-0);
+      
+      &:hover {
+        background-color: var(--color-level-1);
+        border-color: var(--color-level-2);
+      }
+    }
+    
+    &--level-1 {
+      background-color: var(--color-level-1);
+      
+      &:hover {
+        background-color: var(--color-level-2);
+        border-color: var(--color-level-3);
+      }
+    }
+    
+    &--level-2 {
+      background-color: var(--color-level-2);
+      
+      &:hover {
+        background-color: var(--color-level-3);
+        border-color: var(--color-level-4);
+      }
+    }
+    
+    &--level-3 {
+      background-color: var(--color-level-3);
+      
+      &:hover {
+        background-color: var(--color-level-4);
+        border-color: var(--color-level-4);
+      }
+    }
+    
+    &--level-4 {
+      background-color: var(--color-level-4);
+      
+      &:hover {
+        filter: brightness(1.1);
+        border-color: var(--color-level-4);
+      }
+    }
+    
+    // Hover effects
+    &:hover {
+      transform: scale(1.2);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+      border-radius: 3px;
+    }
+    
+    // Focus styles for accessibility
+    &:focus-visible {
+      outline: 2px solid var(--color-level-3);
+      outline-offset: 2px;
+    }
+  }
+
+  // Legend
+  &__legend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    
+    @media (max-width: 768px) {
+      gap: 3px;
+      margin-top: 8px;
+    }
+  }
+
+  &__legend-text {
+    color: var(--color-text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    margin: 0 4px;
+    
+    @media (max-width: 768px) {
+      font-size: 10px;
+      margin: 0 2px;
+    }
+  }
+
+  &__legend-item {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    cursor: help;
+    transition: var(--transition);
+    border: 1px solid var(--color-border);
+    
+    @media (max-width: 768px) {
+      width: 10px;
+      height: 10px;
+    }
+    
+    &:hover {
+      transform: scale(1.2);
+      border-color: var(--color-text-muted);
+    }
+    
+    &--level-0 { background-color: var(--color-level-0); }
+    &--level-1 { background-color: var(--color-level-1); }
+    &--level-2 { background-color: var(--color-level-2); }
+    &--level-3 { background-color: var(--color-level-3); }
+    &--level-4 { background-color: var(--color-level-4); }
+  }
+}
+
+// Animation for initial load
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.contribution-heatmap {
+  animation: fadeInUp 0.6s ease-out;
+  
+  &__day {
+    animation: fadeInUp 0.3s ease-out;
+    
+    // Stagger animation for each day
+    @for $i from 1 through 20 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{$i * 0.02}s;
+      }
+    }
+  }
+}
+
+// Utilities for different themes
+.contribution-heatmap {
+  // Ocean theme
+  &--ocean {
+    --color-level-0: #e6f3ff;
+    --color-level-1: #b3daff;
+    --color-level-2: #66b3ff;
+    --color-level-3: #1a8cff;
+    --color-level-4: #0066cc;
+  }
+  
+  // Sunset theme
+  &--sunset {
+    --color-level-0: #fff2e6;
+    --color-level-1: #ffcc99;
+    --color-level-2: #ff9933;
+    --color-level-3: #ff6600;
+    --color-level-4: #cc3300;
+  }
+  
+  // Purple theme
+  &--purple {
+    --color-level-0: #f3e6ff;
+    --color-level-1: #d9b3ff;
+    --color-level-2: #b366ff;
+    --color-level-3: #8a1aff;
+    --color-level-4: #6600cc;
+  }
+}

@@ -6,6 +6,6 @@ import path from "path";
 export default defineConfig({
   plugins: [react()],
    resolve: {
-  alias: { "@pearpages/poc": path.resolve(process.cwd(), "../src") }
+  alias: { "@pearpages/heatmap": path.resolve(process.cwd(), "../src") }
   },
 })
