@@ -8,5 +8,12 @@ export default defineConfig({
   clean: true,                    // clear dist before build
   treeshake: true,                // remove unused code
   target: "es2022",               // modern JS output
-  external: ["react", "react-dom"] // keep as peer deps
+  external: ["react", "react-dom"], // keep as peer deps
+  esbuildOptions(options) {
+    // Configure loaders for different file types
+    options.loader = {
+      ...options.loader,
+      '.scss': 'css',
+    }
+  }
 });
