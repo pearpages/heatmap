@@ -14,7 +14,7 @@
     "noEmit": true,               // tsup handles emitting
     "baseUrl": ".",
     "paths": {
-      "@pearpages/poc/*": ["src/*"]
+      "@pearpages/heatmap/*": ["src/*"]
     }
   },
   "include": ["src"]
