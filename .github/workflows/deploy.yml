@@ -29,21 +29,13 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
-      
-      # Build the main library first
-      - name: Install main package dependencies
+
+      - name: Install dependencies
+        working-directory: ./gh-pages
         run: npm ci
-      
-      - name: Build main package
-        run: npm run build
-      
-      # Now build the playground using the built library
-      - name: Install playground dependencies
-        working-directory: ./playground
-        run: npm ci
-      
-      - name: Build playground
-        working-directory: ./playground
+
+      - name: Build gh-pages
+        working-directory: ./gh-pages
         run: npm run build
       
       - name: Setup Pages
