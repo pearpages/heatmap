@@ -1,4 +1,4 @@
-import { createDateString, type ContributionData, type Week, type Period } from './models';
+import { createDateString, type ContributionData, type Week } from './models';
 
 const createEmptyContribution = (date: string): ContributionData => ({
   date,
@@ -23,7 +23,7 @@ const createEmptyWeek = (startDate: Date): Week => {
  * Adds an extra empty week if the last month only has one week
  * to match the header span and improve visual balance
  */
-export function addExtraWeekIfNeeded(weeks: Week[], period: Period): Week[] {
+export function addExtraWeekIfNeeded(weeks: Week[]): Week[] {
   if (weeks.length === 0) return weeks;
 
   // Simple approach: always add an extra week at the end for better balance

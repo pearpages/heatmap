@@ -17,7 +17,7 @@ function ContributionHeatmap({
   className = '',
 }: ContributionHeatmapProps) {
   // Add extra week if needed to match header span
-  const adjustedWeeks = addExtraWeekIfNeeded(weeks, period);
+  const adjustedWeeks = addExtraWeekIfNeeded(weeks);
   const months = getMonthsForHeader({ weeks: adjustedWeeks, period });
 
   return (
