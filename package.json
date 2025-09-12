@@ -14,12 +14,14 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
-    }
+    },
+    "./styles.css": "./dist/index.css"
   },
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
+  "style": "./dist/index.css",
   "sideEffects": false,
   "scripts": {
     "build": "tsup",
