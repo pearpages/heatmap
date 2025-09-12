@@ -34,6 +34,7 @@
     "@testing-library/react": "^16",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
+    "esbuild-sass-plugin": "^3.3.1",
     "sass": "^1.92.1",
     "tsup": "^8",
     "typescript": "^5",
