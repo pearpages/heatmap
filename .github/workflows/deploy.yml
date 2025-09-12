@@ -44,7 +44,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './playground/dist'
+          path: './gh-pages/dist'
       
       - name: Deploy to GitHub Pages
         id: deployment
