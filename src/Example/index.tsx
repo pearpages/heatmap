@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { ContributionHeatmap } from '@pearpages/heatmap/ContributionHeatmap';
-import { generateMockData } from '@pearpages/heatmap/ContributionHeatmap/generateMockData';
-import { getLastYearPeriod, type Theme } from '@pearpages/heatmap/ContributionHeatmap/models';
-import { groupByWeeks } from '@pearpages/heatmap/ContributionHeatmap/groupByWeeks';
+import { ContributionHeatmap } from '@/ContributionHeatmap';
+import { generateMockData } from '@/mocks/generateMockData';
+import { getLastYearPeriod, type Theme } from '@/shared/models';
+import { groupByWeeks } from '@/shared/groupByWeeks';
 import './index.scss';
 import { ControlGroups } from './ControlGroups';
 

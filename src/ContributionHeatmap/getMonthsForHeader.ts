@@ -1,4 +1,4 @@
-import { monthNames, type Period, type Week } from './models';
+import { monthNames, type Period, type Week } from '@/shared/models';
 
 function getMonthsForHeader({
   weeks,

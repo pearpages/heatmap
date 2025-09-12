@@ -1,5 +1,5 @@
-import type { ContributionData, Period } from './models';
-import { formatTooltip } from './formatTooltip';
+import type { ContributionData, Period } from '@/shared/models';
+import { formatTooltip } from '@/shared/formatTooltip';
 
 function Week({
   week,

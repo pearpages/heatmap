@@ -1,4 +1,4 @@
-import type { ContributionData } from './models';
+import type { ContributionData } from '@/shared/models';
 
 const getLevel = (count: number): ContributionData['level'] => {
   let level: 0 | 1 | 2 | 3 | 4 = 0;

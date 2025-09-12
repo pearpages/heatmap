@@ -1,6 +1,6 @@
-import { createDateString, type ContributionData, type Period } from './models';
+import { createDateString, type ContributionData, type Period } from '@/shared/models';
+import { getLevel } from '@/ContributionHeatmap/getLevel';
 import { createRealisticMockedCount } from './createRealisticMockedCount';
-import { getLevel } from './getLevel';
 
 const getRandomCount = () => Math.floor(Math.random() * 15);
 

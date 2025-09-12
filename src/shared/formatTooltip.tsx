@@ -1,4 +1,4 @@
-import type { ContributionData, Period } from './models';
+import type { ContributionData, Period } from '@/shared/models';
 
 function isInRange(date: Date, { start, end }: Period): boolean {
   const actualStartDate = new Date(start);

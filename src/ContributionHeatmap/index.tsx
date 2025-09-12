@@ -1,10 +1,9 @@
 import './index.scss';
-import type { ContributionData, Period, Week as WeekType } from './models';
+import type { ContributionData, Period, Week as WeekType } from '../shared/models';
 import { getMonthsForHeader } from './getMonthsForHeader';
-import { Legend } from './Legend';
-import { Header } from './Header';
-import { formatTooltip } from './formatTooltip';
-import { dayNames } from './models';
+import { formatTooltip } from '@/shared/formatTooltip';
+import { dayNames } from '@/shared/models';
+import { Legend } from '@/shared/Legend';
 import { addExtraWeekIfNeeded } from './addExtraWeekIfNeeded';
 
 interface ContributionHeatmapProps {
@@ -13,7 +12,7 @@ interface ContributionHeatmapProps {
 }
 
 function ContributionHeatmap({
-  data: { contribution, period, weeks },
+  data: { period, weeks },
   className = '',
 }: ContributionHeatmapProps) {
   // Add extra week if needed to match header span
@@ -22,8 +21,6 @@ function ContributionHeatmap({
 
   return (
     <div className={`contribution-heatmap ${className}`}>
-      <Header contributions={contribution.filter((d) => d.count > 0).length} />
-
       <table className="contribution-heatmap__table">
         <thead>
           <tr>

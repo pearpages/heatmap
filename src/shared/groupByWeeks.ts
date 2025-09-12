@@ -1,4 +1,4 @@
-import { createDateString, type ContributionData, type Week } from './models';
+import { createDateString, type ContributionData, type Week } from '@/shared/models';
 
 const createEmpyContribution = (date: string): ContributionData => ({
   date,

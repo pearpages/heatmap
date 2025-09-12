@@ -1,4 +1,4 @@
-import { dayNames } from './models';
+import { dayNames } from '@/shared/models';
 
 function DayLabels(): React.ReactNode {
   return (

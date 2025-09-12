@@ -1,4 +1,4 @@
-import type { ContributionData } from './models';
+import type { ContributionData } from '@/shared/models';
 
 const isSummerMonth = (month: number) => {
   return month >= 5 && month <= 7;

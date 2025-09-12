@@ -1,5 +1,5 @@
 import './controlGroups.scss';
-import type { Theme } from '@pearpages/heatmap/ContributionHeatmap/models';
+import type { Theme } from '@/shared/models';
 
 export function ControlGroups({
   actions: { theme, setTheme, hasRealisticData, setHasRealisticData },

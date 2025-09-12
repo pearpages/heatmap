@@ -1,4 +1,4 @@
-import { ContributionHeatmapExample } from '@pearpages/heatmap';
+import { ContributionHeatmapExample } from '@/index';
 
 function App() {
   return (
