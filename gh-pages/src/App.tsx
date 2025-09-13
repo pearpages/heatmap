@@ -4,7 +4,7 @@ import json from "../../package.json";
 function App() {
   return (
     <>
-      <h1>Contribution Heatmap v${json.version}</h1>
+      <h1>Contribution Heatmap v{json.version}</h1>
       <ContributionHeatmapExample />
     </>
   );
