@@ -5,9 +5,15 @@
 
 # Heatmap
 
+React component that "copies" the style of _Github_ for showing heatmaps.
+
+[Demo](heatmap.pearpages.com)
+
+![alt heatmaps](assets/demo.png)
+
 ## Getting started
 
-When using the library, make sure to import the CSS file from the `dist` folder:
+When using the library, make sure to import the CSS file:
 
 ```tsx
 import '@pearpages/heatmap/styles.css';
