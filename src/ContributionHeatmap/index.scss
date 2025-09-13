@@ -3,7 +3,7 @@
 
 .contribution-heatmap {
   color: var(--color-text-muted);
-  font-size: 12px;
+  font-size: 8px;
   // Component variables
   --day-size: 12px;
   --day-gap: 2px;
@@ -61,14 +61,9 @@
   }
 
   &__day-header {
-    width: 30px;
     padding: 0;
     border: none;
     background: none;
-
-    @media (max-width: 768px) {
-      width: 20px;
-    }
   }
 
   // Hover effect for the entire component
@@ -78,7 +73,7 @@
 
   // Mobile responsiveness
   @media (max-width: 768px) {
-    font-size: 10px;
+    
     --day-size: 10px;
     --day-gap: 1px;
     padding: 15px;
@@ -90,7 +85,7 @@
   }
 
   @media (max-width: 480px) {
-    font-size: 8px;
+    
     --day-size: 8px;
     --day-gap: 1px;
     padding: 10px;

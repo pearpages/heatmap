@@ -46,8 +46,15 @@ function getLastYearPeriod(): Period {
   return { start, end };
 }
 
+function getLastMonthPeriod(): Period {
+  const now = new Date();
+  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const start = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate() + 1);
+  return { start, end };
+}
+
 const createDateString = (date: Date): string =>
   date.toISOString().split('T')[0];
 
 export type { ContributionData, Week, Period, Theme };
-export { monthNames, dayNames, createDateString, getLastYearPeriod };
+export { monthNames, dayNames, createDateString, getLastYearPeriod, getLastMonthPeriod };

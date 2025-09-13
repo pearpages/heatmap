@@ -9,13 +9,14 @@ function getMonthsForHeader({
 }): {
   name: string;
   span: number;
+  start: number;
 }[] {
-  const months: { name: string; span: number }[] = [];
+  const months: { name: string; span: number; start: number }[] = [];
   const { start, end } = period;
   let currentMonth = -1;
   let currentSpan = 0;
 
-  weeks.forEach((week) => {
+  weeks.forEach((week, weekIndex) => {
     if (week.length > 0) {
       // Find the first day in the week that falls within our actual data range
       let monthToUse = -1;
@@ -38,7 +39,7 @@ function getMonthsForHeader({
 
       if (monthToUse !== currentMonth) {
         if (currentMonth !== -1) {
-          months.push({ name: monthNames[currentMonth], span: currentSpan });
+          months.push({ name: monthNames[currentMonth], span: currentSpan, start: weekIndex - currentSpan });
         }
         currentMonth = monthToUse;
         currentSpan = 1;
@@ -49,7 +50,7 @@ function getMonthsForHeader({
   });
 
   if (currentMonth !== -1) {
-    months.push({ name: monthNames[currentMonth], span: currentSpan });
+    months.push({ name: monthNames[currentMonth], span: currentSpan, start: weeks.length - currentSpan });
   }
 
   // If the last month only has one week, add an extra week for better visual balance
