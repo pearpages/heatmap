@@ -40,7 +40,7 @@ function ContributionHeatmap({
           {dayNames.map((dayName, dayIndex) => (
             <tr key={dayIndex}>
               <td className="contribution-heatmap__day-label">
-                {window.innerWidth > 768 ? dayName : dayName.charAt(0)}
+                {dayName}
               </td>
               {adjustedWeeks.map((week, weekIndex) => {
                 const contribution = week[dayIndex];
