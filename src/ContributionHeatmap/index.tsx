@@ -4,7 +4,6 @@ import { getMonthsForHeader } from './getMonthsForHeader';
 import { formatTooltip } from '@/shared/formatTooltip';
 import { dayNames } from '@/shared/models';
 import { Legend } from '@/shared/Legend';
-import { addExtraWeekIfNeeded } from './addExtraWeekIfNeeded';
 
 interface ContributionHeatmapProps {
   data: { contribution: ContributionData[]; period: Period; weeks: WeekType[] };
@@ -16,8 +15,8 @@ function ContributionHeatmap({
   className = '',
 }: ContributionHeatmapProps) {
   // Add extra week if needed to match header span
-  const adjustedWeeks = addExtraWeekIfNeeded(weeks);
-  const months = getMonthsForHeader({ weeks: adjustedWeeks, period });
+  
+  const months = getMonthsForHeader({ weeks, period });
 
   return (
     <div className={`contribution-heatmap ${className}`}>
@@ -42,7 +41,7 @@ function ContributionHeatmap({
               <td className="contribution-heatmap__day-label">
                 {dayName}
               </td>
-              {adjustedWeeks.map((week, weekIndex) => {
+              {weeks.map((week, weekIndex) => {
                 const contribution = week[dayIndex];
                 return (
                   <td

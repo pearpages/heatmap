@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ContributionHeatmap } from '@/ContributionHeatmap';
-import { generateMockData } from '@/mocks/generateMockData';
+import { generateMockData } from '@/mocks';
 import { getLastYearPeriod, type Theme } from '@/shared/models';
 import { groupByWeeks } from '@/shared/groupByWeeks';
 import './index.scss';
