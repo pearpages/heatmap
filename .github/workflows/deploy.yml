@@ -1,6 +1,10 @@
+
 name: Deploy to GitHub Pages
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       reason:
@@ -33,7 +37,13 @@ jobs:
           node-version: 20
           cache: "npm"
 
-      - name: Install dependencies
+      - name: Install dependencies (root)
+        run: npm ci
+
+      - name: Build library (root)
+        run: npm run build
+
+      - name: Install dependencies (gh-pages)
         working-directory: ./gh-pages
         run: npm install
 
