@@ -1,0 +1,8 @@
+/* Intentionally empty.
+ *
+ * In dist mode the demo imports '@pearpages/heatmap/example.css', because tsup
+ * extracts the SCSS into a standalone stylesheet. In source mode the components
+ * import their own .scss files and Vite compiles them, so the same import would
+ * duplicate every rule. vite.config.ts aliases the stylesheet here in source
+ * mode, which keeps main.tsx identical in both modes.
+ */

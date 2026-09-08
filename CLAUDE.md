@@ -14,11 +14,30 @@ contribution heatmap. Published to npm, demo deployed to
 | --- | --- |
 | `src/` | The library itself — the only thing published (`files: ["dist"]`) |
 | `src/entries/example.ts` | Barrel for the `@pearpages/heatmap/example` subpath |
-| `playground/` | Scratch Vite sandbox, not deployed |
-| `gh-pages/` | The deployed demo site; consumes the package via `file:../` |
+| `demo/` | The dev sandbox **and** the deployed site; an npm workspace |
 
-`gh-pages/` builds against the **built** package, so run the root `npm run build` before
-`cd gh-pages && npm run dev`.
+## Development loop
+
+`demo/` is a single Vite app that imports the library by its public specifier
+(`@pearpages/heatmap/example`) and resolves it two different ways:
+
+| Command (repo root) | Resolves to | Use for |
+| --- | --- | --- |
+| `npm run demo` | `../src`, via aliases in `demo/vite.config.ts` under `--mode source` | component work — HMR, no build step |
+| `npm run demo:dist` | `../dist`, via the package's own `exports` map | the pre-release consumer check |
+
+CI (`deploy.yml`) always builds the dist mode, so the deployed site doubles as proof that
+the published package resolves. Keeping one `App.tsx` for both modes is the point — they
+cannot drift. If the two modes render differently, the packaging is broken.
+
+Source mode aliases the stylesheet imports to the empty `demo/src/styles.noop.css`: in
+dist mode the CSS is a separate extracted file, while in source mode the components pull
+their own SCSS and importing it again would duplicate every rule.
+
+The repo is an npm workspace (`"workspaces": ["demo"]`), so one `npm install` at the root
+covers both and `react` is deduped automatically. `vite` is a root devDependency purely so
+that the root and `demo/` share one copy — without it `demo/`'s `tsc -b` fails on two
+incompatible `vite` type trees (vitest 2 pins its own vite 5).
 
 ## Build
 
@@ -60,9 +79,18 @@ automatic via `prefers-color-scheme`.
 `level` is caller-supplied and drives the colour; the component never derives it from
 `count`.
 
-## Testing
+## Checks
 
-Always `npm test -- --run` (bare `npm test` starts watch mode and will hang).
+- `npm test -- --run` — always pass `--run`; bare `npm test` starts watch mode and hangs.
+- `npm run lint` — root flat ESLint config, covers `src/` and `demo/src/`.
+- `npm run check:package` — `publint` + `arethetypeswrong`. This is what actually guards
+  the `exports` map, the `files` field and the `.d.ts` resolution; the demo can't see
+  those bugs. `attw` runs with `--profile esm-only` (the package is ESM-only by design,
+  so the CJS-resolution warnings are noise) and skips the two CSS subpaths, which `attw`
+  has no concept of.
+
+All three plus the build run as gates in `publish.yml`, and again via `prepublishOnly` so
+a local `npm publish` can't skip them.
 
 `vitest.config.ts` pins **`TZ=UTC`**. This matters: `createDateString` formats via
 `toISOString()` (UTC) while `Period` boundaries are built with local-time `Date`
@@ -90,6 +118,3 @@ README's Releasing section.
 - [ ] **`getLastMonthPeriod` short window.** From a 31st it computes e.g. Feb 32, which
       normalises forward to Mar 3 — the "last month" window can be under four weeks and
       never reach the previous month.
-- [ ] **`publish.yml` skips silently.** If a `v*` tag isn't on `main`, every step is
-      skipped and the job still reports green. Add an `else` branch that echoes why.
-- [ ] **`gh-pages/package.json` is still named `"playground"`** — copy/paste leftover.

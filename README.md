@@ -161,22 +161,29 @@ Dark mode is automatic via `prefers-color-scheme` — there is no prop or toggle
 ## Local development
 
 ```bash
-npm install
-npm run dev          # tsup --watch on the library
+npm install          # workspace root; installs demo/ too
+npm run demo         # the sandbox, resolving the library from src/ (HMR)
 npm run build        # build dist/
 npm test -- --run    # run the test suite once
+npm run lint
+npm run check:package  # publint + arethetypeswrong
 ```
 
-Two apps consume the library:
+`demo/` is a single Vite app that serves as both the development sandbox and the site
+deployed to [heatmap.pearpages.com](https://heatmap.pearpages.com). It imports the library
+by its public specifier (`@pearpages/heatmap/example`) and resolves it two ways:
 
-- **`playground/`** — a scratch Vite sandbox for trying things out.
-- **`gh-pages/`** — the site deployed to [heatmap.pearpages.com](https://heatmap.pearpages.com).
-  It consumes the package through `file:../`, so run the root `npm run build` first:
+| Command | Resolves to | Use for |
+| --- | --- | --- |
+| `npm run demo` | `../src` — HMR, no build step | working on the component |
+| `npm run demo:dist` | `../dist` through the package's `exports` map | checking what a consumer installs |
 
-  ```bash
-  npm run build
-  cd gh-pages && npm install && npm run dev
-  ```
+`npm run demo:dist` rebuilds the library first. Because one `App.tsx` serves both modes,
+they can't drift: if they render differently, the packaging is wrong.
+
+`npm run check:package` is the automated version of that check — `publint` and
+`arethetypeswrong` validate the `exports` map, the `files` field and the `.d.ts`
+resolution. It runs in `publish.yml` and in `prepublishOnly`.
 
 ## Releasing
 
@@ -185,7 +192,7 @@ game:
 
 | Trigger | Workflow | Effect |
 | --- | --- | --- |
-| Push to `main` | `.github/workflows/deploy.yml` | Builds the library + `gh-pages/`, deploys to GitHub Pages. **Never touches npm.** |
+| Push to `main` | `.github/workflows/deploy.yml` | Runs the tests, builds the library + `demo/`, deploys to GitHub Pages. **Never touches npm.** |
 | Push a `v*` tag | `.github/workflows/publish.yml` | Builds and publishes to npm with provenance |
 
 So you can push to `main` freely — nothing reaches npm until a `v*` tag is pushed.
@@ -206,10 +213,11 @@ git push --follow-tags     # pushes main (deploys the demo) and the tag (publish
    the two in sync for you.
 2. **A plain `git push` does not push tags.** Use `git push --follow-tags`, or push the
    tag explicitly with `git push origin vX.Y.Z`.
-3. **The main-branch guard fails silently.** Every step in `publish.yml` is gated on
-   `git merge-base --is-ancestor $GITHUB_SHA origin/main`. If the tag is not on `main`,
-   all steps skip and the job still reports **green** — no error, no message, no package.
-4. **The demo advertises the new version before npm has it.** `gh-pages/src/App.tsx`
+3. **The main-branch guard skips rather than fails.** Every step in `publish.yml` is gated
+   on `git merge-base --is-ancestor $GITHUB_SHA origin/main`. If the tag is not on `main`,
+   all steps skip and the job still reports **green** — it now emits a workflow warning
+   saying why, but it is still a green run with nothing published.
+4. **The demo advertises the new version before npm has it.** `demo/src/App.tsx`
    renders the version read from the root `package.json`, and the Pages deploy runs on
    push to `main`. The site therefore shows the bumped version as soon as the bump commit
    lands — before the tag exists, and before npm has anything.

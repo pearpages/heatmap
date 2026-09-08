@@ -24,6 +24,7 @@ jobs:
             echo "is_main_branch=true" >> $GITHUB_OUTPUT
           else
             echo "is_main_branch=false" >> $GITHUB_OUTPUT
+            echo "::warning::Tag ${{ github.ref_name }} (${{ github.sha }}) is not an ancestor of origin/main - skipping publish. Tag a commit on main instead."
           fi
 
       - uses: actions/setup-node@v4
@@ -35,8 +36,15 @@ jobs:
 
       - run: npm ci
         if: steps.check_branch.outputs.is_main_branch == 'true'
+      - run: npm run test:run
+        if: steps.check_branch.outputs.is_main_branch == 'true'
+      - run: npm run lint
+        if: steps.check_branch.outputs.is_main_branch == 'true'
       - run: npm run build
         if: steps.check_branch.outputs.is_main_branch == 'true'
+      - name: Validate the package that will be published
+        if: steps.check_branch.outputs.is_main_branch == 'true'
+        run: npm run check:package
 
       # optional sanity check
       - run: npx npm@^10 whoami

@@ -10,9 +10,9 @@ yarn-error.log*
 dist
 *.tsbuildinfo
 
-# Playground build
-playground/dist
-playground/node_modules
+# Demo build
+demo/dist
+demo/node_modules
 
 # IDE / OS
 .DS_Store

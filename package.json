@@ -4,22 +4,25 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pearpages/heatmap"
+    "url": "git+https://github.com/pearpages/heatmap.git"
   },
   "bugs": {
     "url": "https://github.com/pearpages/heatmap/issues"
   },
   "homepage": "https://github.com/pearpages/heatmap#readme",
   "type": "module",
+  "workspaces": [
+    "demo"
+  ],
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./styles.css": "./dist/index.css",
     "./example": {
-      "import": "./dist/example.js",
-      "types": "./dist/example.d.ts"
+      "types": "./dist/example.d.ts",
+      "import": "./dist/example.js"
     },
     "./example.css": "./dist/example.css"
   },
@@ -32,22 +35,35 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
+    "demo": "npm run dev -w demo",
+    "demo:dist": "npm run build && npm run dev:dist -w demo",
+    "lint": "eslint .",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "check:package": "publint && attw --pack . --profile esm-only --exclude-entrypoints styles.css example.css",
+    "prepublishOnly": "npm run build && npm run test:run && npm run check:package"
   },
   "peerDependencies": {
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.2",
+    "@eslint/js": "^9.33.0",
     "@testing-library/react": "^16",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
     "esbuild-sass-plugin": "^3.3.1",
+    "eslint": "^9.33.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^16.3.0",
     "jsdom": "^29.1.1",
+    "publint": "^0.3.12",
     "sass": "^1.92.1",
     "tsup": "^8",
     "typescript": "^5",
+    "typescript-eslint": "^8.39.1",
+    "vite": "^7.1.2",
     "vitest": "^2"
   }
 }
