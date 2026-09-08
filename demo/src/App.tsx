@@ -224,8 +224,29 @@ const period = getLastMonthPeriod();
         </section>
 
         <footer className="page__footer">
-          <a href="https://github.com/pearpages/heatmap">GitHub</a>
-          <a href="https://www.npmjs.com/package/@pearpages/heatmap">npm</a>
+          <div className="page__links">
+            <a href="https://github.com/pearpages/heatmap">GitHub</a>
+            <a href="https://www.npmjs.com/package/@pearpages/heatmap">npm</a>
+          </div>
+
+          {/*
+            The shared pearpages credit, same block and class names as the other sites.
+            Deliberately not translated: it is a fixed signature rather than page
+            content, so it stays out of i18n.ts even though the rest of the page
+            switches language.
+          */}
+          <div className="sk-author">
+            <p className="sk-author__credit">
+              <img
+                className="sk-author__icon"
+                src="/pearpages-icon.png"
+                alt=""
+                width="22"
+                height="22"
+              />
+              Made by <a href="https://pearpages.com">Pere Pages</a>
+            </p>
+          </div>
         </footer>
       </div>
     </>

@@ -139,11 +139,16 @@ body {
   }
 
   &__footer {
-    display: flex;
-    gap: 16px;
     padding-top: 24px;
     border-top: 1px solid var(--page-border);
     color: var(--page-muted);
+    text-align: center;
+  }
+
+  &__links {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
 
     a {
       color: var(--page-accent);
@@ -153,6 +158,38 @@ body {
         text-decoration: underline;
       }
     }
+  }
+}
+
+// The shared pearpages credit. Same block, class names and metrics as the other
+// pearpages sites; only the colours come from this page's tokens, so it follows the
+// light/dark switcher instead of hardcoding another site's palette.
+.sk-author {
+  padding: 20px 24px 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--page-muted);
+
+  &__credit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0;
+
+    a {
+      color: inherit;
+      font-weight: 700;
+      text-decoration: underline;
+      text-decoration-color: var(--page-accent);
+    }
+  }
+
+  &__icon {
+    display: block;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
   }
 }
 
