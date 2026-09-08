@@ -165,7 +165,8 @@ either:
 | --- | --- | --- |
 | `--heatmap-font-family` | a system UI stack | the font for every label |
 | `--heatmap-label-size` | `11px` | day names, month names, legend text |
-| `--day-size` | `12px` (`10px` ≤768px, `8px` ≤480px; `24px` reversed) | the side of each square |
+| `--heatmap-day-header-font-family` | a monospace stack | the day names above the reversed layout's columns |
+| `--day-size` | `12px` (`10px` ≤768px, `8px` ≤480px; `20px` reversed) | the side of each square |
 | `--day-gap` | `2px` | the space between squares |
 
 ```css
@@ -183,9 +184,15 @@ it doesn't fit, rather than stretching to the container. The day-name column sta
 while the weeks scroll under it.
 
 With `isReverse`, the root also carries `contribution-heatmap--reverse`. That layout puts
-the day names above their columns, so no column can be narrower than `Wed` — its squares
-are sized to match rather than floating in oversized cells. Override `--day-size` under
-that class to change it.
+the day names above their columns rather than beside the rows, so no column can be
+narrower than its header and the squares are sized to match rather than floating in
+oversized cells.
+
+Those headers are set in a monospace face. Every day name is exactly three characters, so
+a monospace one renders all seven at an identical width — in a proportional face `Fri` is
+10px narrower than `Wed`, which leaves visibly more air around it. Override
+`--heatmap-day-header-font-family` (and `--day-size`, which is sized to clear the label)
+under that class to change it.
 
 The grid always renders whole Sunday–Saturday weeks, so the first and last week can hold
 days outside your period. Those slots are left blank — no square, no tooltip, not

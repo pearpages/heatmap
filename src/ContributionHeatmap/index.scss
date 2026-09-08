@@ -8,6 +8,7 @@
   // meta.inspect keeps the quotes that plain interpolation would strip.
   --heatmap-font-family: #{meta.inspect(typography.$font-stack)};
   --heatmap-label-size: 11px;
+  --heatmap-day-header-font-family: #{meta.inspect(typography.$mono-stack)};
 
   // Component variables
   --day-size: 12px;
@@ -167,10 +168,16 @@
   // them floating in a wider cell. Declared after the breakpoints above so it wins
   // at every width - the grid is only seven columns, it always fits.
   &--reverse {
-    --day-size: 24px;
+    // Sized to clear the widest day header, which the monospace face below brings
+    // down to 19.87px from the proportional "Wed" at 23.7px.
+    --day-size: 20px;
 
-    // The day names sit above their own column here, rather than being row labels.
+    // The day names sit above their own column here, rather than being row labels,
+    // so their differing widths show up as uneven spacing. Monospace makes all
+    // seven identical - if a fallback face renders wider, every column widens by
+    // the same amount, so the rhythm still can't go uneven.
     .contribution-heatmap__day-header {
+      font-family: var(--heatmap-day-header-font-family);
       text-align: center;
     }
   }

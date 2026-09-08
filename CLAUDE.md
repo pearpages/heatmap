@@ -96,9 +96,15 @@ Two rules keep the grid honest; both were once broken and are easy to break agai
 - **The square is drawn by `&__day::before`, not the `<td>`.** The cell is only a slot.
   The reversed layout sizes its columns to the `Sun`/`Mon` headers, which are wider than
   `--day-size`, so a square painted on the cell itself stretches with the column. That
-  layout gets `--day-size: 24px` under `.contribution-heatmap--reverse` — declared after
+  layout gets `--day-size: 20px` under `.contribution-heatmap--reverse` — declared after
   the breakpoints so it wins at every width — otherwise a 12px square leaves ~10px of
   slack in every cell.
+- **The reversed layout's day headers are monospace**, which is a fix and not a style
+  choice. Every name in `dayNames` is exactly three characters, so a monospace face
+  renders all seven at one width; proportionally, `Fri` is 13.8px against `Wed`'s 23.7px,
+  and centring that in equal columns makes the gaps flanking `Fri` 4.3x the others.
+  `--day-size: 20px` follows from it: the monospace label is 19.87px wide, so the square
+  clears it and the square — not the label — sets the column.
 - **The month label is out of flow** (`&__month-header-text`, absolutely positioned). A
   month at either end of the period can span a single week, and in flow its own label
   would widen that one column and open a visible gap. The trailing month additionally

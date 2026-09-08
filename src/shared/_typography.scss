@@ -3,3 +3,8 @@
 // --heatmap-font-family custom property, not this variable.
 $font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica,
   Arial, sans-serif;
+
+// Equal-width day headers. Every name in dayNames is exactly three characters, so a
+// monospace face renders all seven identically and the reversed layout's column
+// rhythm stays even - "Fri" is 10px narrower than "Wed" in a proportional face.
+$mono-stack: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
