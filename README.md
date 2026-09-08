@@ -156,6 +156,41 @@ custom properties, so you can define your own the same way:
 
 Dark mode is automatic via `prefers-color-scheme` — there is no prop or toggle.
 
+### Typography and sizing
+
+The same mechanism covers the font and the cell size, so there is no prop for these
+either:
+
+| Custom property | Default | What it does |
+| --- | --- | --- |
+| `--heatmap-font-family` | a system UI stack | the font for every label |
+| `--heatmap-label-size` | `11px` | day names, month names, legend text |
+| `--day-size` | `12px` (`10px` ≤768px, `8px` ≤480px; `24px` reversed) | the side of each square |
+| `--day-gap` | `2px` | the space between squares |
+
+```css
+.contribution-heatmap {
+  --heatmap-font-family: "Inter", sans-serif;
+  --day-size: 16px;
+}
+```
+
+The component declares its own font rather than inheriting the host page's, so it looks
+the same wherever it is dropped. Override the property to blend it back in.
+
+Squares are always square: the grid is sized by its content and scrolls horizontally when
+it doesn't fit, rather than stretching to the container. The day-name column stays pinned
+while the weeks scroll under it.
+
+With `isReverse`, the root also carries `contribution-heatmap--reverse`. That layout puts
+the day names above their columns, so no column can be narrower than `Wed` — its squares
+are sized to match rather than floating in oversized cells. Override `--day-size` under
+that class to change it.
+
+The grid always renders whole Sunday–Saturday weeks, so the first and last week can hold
+days outside your period. Those slots are left blank — no square, no tooltip, not
+focusable — rather than being drawn as zero-contribution days.
+
 ## Local development
 
 ```bash

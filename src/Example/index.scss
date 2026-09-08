@@ -1,5 +1,8 @@
+@use '../shared/typography';
+
 .example {
   &__controls {
+    font-family: typography.$font-stack;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     padding: 24px;

@@ -73,6 +73,33 @@ describe('ContributionHeatmap', () => {
     expect(container.querySelector('.contribution-heatmap--ocean')).not.toBeNull();
   });
 
+  it('marks the padding days outside the period and takes them out of the tab order', () => {
+    // groupByWeeks pads to whole Sun-Sat weeks: Jan 1 2024 is a Monday, so Dec 31
+    // leads; Feb 29 is a Thursday, so Mar 1-2 trail. Three cells in total.
+    const { container } = render(<ContributionHeatmap data={data} />);
+    const outside = container.querySelectorAll('.contribution-heatmap__day--outside');
+
+    expect(outside).toHaveLength(3);
+    expect([...outside].map((el) => el.getAttribute('data-date'))).toEqual([
+      '2023-12-31',
+      '2024-03-01',
+      '2024-03-02',
+    ]);
+    outside.forEach((el) => {
+      expect(el.getAttribute('role')).toBeNull();
+      expect(el.getAttribute('tabindex')).toBeNull();
+    });
+  });
+
+  it('keeps the period boundary days in range', () => {
+    const { container } = render(<ContributionHeatmap data={data} />);
+    const first = container.querySelector('[data-date="2024-01-01"]');
+    const last = container.querySelector('[data-date="2024-02-29"]');
+
+    expect(first?.className).not.toContain('--outside');
+    expect(last?.className).not.toContain('--outside');
+  });
+
   it('renders the legend', () => {
     const { container } = render(<ContributionHeatmap data={data} />);
 

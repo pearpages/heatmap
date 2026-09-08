@@ -38,14 +38,14 @@ describe('formatTooltip', () => {
     );
   });
 
-  // isInRange uses strict > / < rather than >= / <=, so the period's own start and
-  // end days are treated as out of range. Documented here as current behaviour.
-  it('treats the period boundary days themselves as out of range', () => {
-    expect(formatTooltip(contribution('2024-01-01', 5), period)).toContain(
-      'No contributions',
+  // The predicate also drives the --outside modifier in the grid, so the boundary
+  // days must belong to their own period: inclusive on both ends.
+  it('counts the period boundary days as in range', () => {
+    expect(formatTooltip(contribution('2024-01-01', 5), period)).toBe(
+      'Mon, Jan 1, 2024: 5 contributions',
     );
-    expect(formatTooltip(contribution('2024-12-31', 5), period)).toContain(
-      'No contributions',
+    expect(formatTooltip(contribution('2024-12-31', 5), period)).toBe(
+      'Tue, Dec 31, 2024: 5 contributions',
     );
   });
 });

@@ -48,15 +48,15 @@ describe('getMonthsForHeader', () => {
     expect(months).toEqual([{ name: 'Jan', span: 5, start: 0 }]);
   });
 
-  it('widens a trailing single-week month to two for visual balance', () => {
-    // The final week (Feb 4-10) is the only February week, so its span is bumped.
+  it('leaves a trailing single-week month at one week', () => {
+    // The final week (Feb 4-10) is the only February week. Padding it out would make
+    // the header row span more columns than the body has, shifting every month label.
     const { months, weeks } = build('2024-01-01', '2024-02-05');
     const last = months[months.length - 1];
 
     expect(last.name).toBe('Feb');
-    expect(last.span).toBe(2);
-    // The bump deliberately overshoots the real week count.
-    expect(months.reduce((s, m) => s + m.span, 0)).toBe(weeks.length + 1);
+    expect(last.span).toBe(1);
+    expect(months.reduce((s, m) => s + m.span, 0)).toBe(weeks.length);
   });
 
   it('returns nothing for an empty week list', () => {

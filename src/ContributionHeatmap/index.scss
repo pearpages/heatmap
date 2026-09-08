@@ -1,9 +1,14 @@
 // ContributionHeatmap.scss
 // GitHub-style contribution heatmap with BEM methodology
+@use 'sass:meta';
+@use '../shared/typography';
 
 .contribution-heatmap {
-  color: var(--color-text-muted);
-  font-size: 8px;
+  // Typography - overridable exactly like the colour tokens below
+  // meta.inspect keeps the quotes that plain interpolation would strip.
+  --heatmap-font-family: #{meta.inspect(typography.$font-stack)};
+  --heatmap-label-size: 11px;
+
   // Component variables
   --day-size: 12px;
   --day-gap: 2px;
@@ -35,35 +40,107 @@
     --color-level-4: #39d353;
   }
 
+  font-family: var(--heatmap-font-family);
+  font-size: var(--heatmap-label-size);
+  line-height: 1;
+  color: var(--color-text-muted);
   background: var(--color-bg);
   border-radius: var(--border-radius);
   padding: 20px;
   box-shadow: 0 2px 8px var(--shadow-color);
   border: 1px solid var(--color-border);
   transition: var(--transition);
+  // Hug the grid rather than filling the container, so the legend stays with it.
+  // Falls back to the available width, at which point __scroll takes over.
+  // border-box matters here: the library ships no reset, and under content-box
+  // the padding is added on top of max-width and the card overflows its parent.
+  box-sizing: border-box;
+  width: fit-content;
   max-width: 100%;
-  overflow-x: auto;
 
-  // Table-specific styles
+  // Only the grid scrolls - the padding, border and legend stay put.
+  &__scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    // overflow-x:auto makes overflow-y compute to auto too, which would clip the
+    // :hover scale on the top and bottom rows. Give it room.
+    padding-block: 3px;
+  }
+
+  // Intrinsic width: the columns are sized by the cells, never stretched to the
+  // container. This is what makes --day-size mean something and lets the grid
+  // scroll instead of squashing.
   &__table {
-    table-layout: fixed;
-    width: 100%;
+    width: max-content;
     border-collapse: separate;
     border-spacing: var(--day-gap);
   }
 
-  &__month-header {
+  // Sun/Mon/... and the month names. The two classes swap roles between the
+  // default and reversed layouts, so both need the same treatment.
+  &__month-header,
+  &__day-header,
+  &__day-label,
+  &__month-label {
+    font-size: var(--heatmap-label-size);
     font-weight: 500;
-    text-align: left;
+    color: var(--color-text);
+    white-space: nowrap;
     padding: 0;
     border: none;
     background: none;
   }
 
+  &__month-header,
   &__day-header {
-    padding: 0;
-    border: none;
-    background: none;
+    text-align: left;
+    padding-bottom: 4px;
+  }
+
+  // A month at the edge of the period can span a single week, and its own label is
+  // wider than one column. Taking the text out of flow stops it setting the column
+  // width - otherwise that one week stretches and opens a gap in the grid.
+  &__month-header {
+    position: relative;
+    height: calc(var(--heatmap-label-size) + 6px);
+  }
+
+  &__month-header-text {
+    position: absolute;
+    left: 0;
+    bottom: 4px;
+  }
+
+  // The trailing month is the one that can span a single week, and out of flow its
+  // label would overhang the last column - widening the scroll area for the sake of
+  // a few pixels of text. Anchor it to the right so it overhangs inwards instead.
+  &__month-header--last &__month-header-text {
+    left: auto;
+    right: 0;
+  }
+
+  // Shrink-to-fit, so the label column keeps its own width instead of
+  // collapsing to a day column. Pinned, so it survives a horizontal scroll -
+  // the background has to be opaque because cells slide underneath.
+  &__day-label,
+  &__month-label {
+    width: 1%;
+    text-align: right;
+    padding-right: 6px;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--color-bg);
+  }
+
+  &__day-label {
+    vertical-align: middle;
+  }
+
+  // Sits against a rowSpan in the reversed layout.
+  &__month-label {
+    vertical-align: top;
   }
 
   // Hover effect for the entire component
@@ -71,108 +148,128 @@
     box-shadow: 0 4px 16px var(--shadow-color);
   }
 
-  // Mobile responsiveness
+  // Mobile responsiveness. Now that the table is intrinsically sized these shrink
+  // the cells in both dimensions; anything that still doesn't fit scrolls.
   @media (max-width: 768px) {
-    
     --day-size: 10px;
     --day-gap: 1px;
     padding: 15px;
-
-    // Reduce padding on mobile
-    &__container {
-      padding: 0;
-    }
   }
 
   @media (max-width: 480px) {
-    
     --day-size: 8px;
     --day-gap: 1px;
     padding: 10px;
   }
 
-  // Header section
-  &__header {
-    margin-bottom: 16px;
-    text-align: center;
+  // The reversed layout puts the day names above the columns, so no column can be
+  // narrower than "Wed". Grow the squares to match instead of leaving every one of
+  // them floating in a wider cell. Declared after the breakpoints above so it wins
+  // at every width - the grid is only seven columns, it always fits.
+  &--reverse {
+    --day-size: 24px;
 
-    @media (max-width: 768px) {
-      margin-bottom: 12px;
+    // The day names sit above their own column here, rather than being row labels.
+    .contribution-heatmap__day-header {
+      text-align: center;
     }
   }
 
-  // Individual day square
+  // Individual day. The cell is only a slot: the visible square is drawn by
+  // ::before so that a column wider than --day-size - the reversed layout sizes
+  // its columns to the Sun/Mon/... headers - can never stretch the square.
   &__day {
     width: var(--day-size);
-    height: var(--day-size);
-    border-radius: 2px;
-    cursor: pointer;
-    transition: var(--transition);
-    position: relative;
-    border: 1px solid transparent;
-    padding: 0;
-    box-sizing: border-box;
-
-    // Ensure consistent sizing in table
     min-width: var(--day-size);
-    max-width: var(--day-size);
+    height: var(--day-size);
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    position: relative;
+
+    &::before {
+      content: '';
+      display: block;
+      width: var(--day-size);
+      height: var(--day-size);
+      margin-inline: auto;
+      box-sizing: border-box;
+      border: 1px solid transparent;
+      border-radius: 2px;
+      background-color: var(--color-level-0);
+      transition: var(--transition);
+    }
 
     // Contribution levels
-    &--level-0 {
-      background-color: var(--color-level-0);
-
-      &:hover {
-        background-color: var(--color-level-1);
-        border-color: var(--color-level-2);
-      }
-    }
-
-    &--level-1 {
+    &--level-0:hover::before {
       background-color: var(--color-level-1);
-
-      &:hover {
-        background-color: var(--color-level-2);
-        border-color: var(--color-level-3);
-      }
+      border-color: var(--color-level-2);
     }
 
-    &--level-2 {
+    &--level-1::before {
+      background-color: var(--color-level-1);
+    }
+
+    &--level-1:hover::before {
       background-color: var(--color-level-2);
-
-      &:hover {
-        background-color: var(--color-level-3);
-        border-color: var(--color-level-4);
-      }
+      border-color: var(--color-level-3);
     }
 
-    &--level-3 {
+    &--level-2::before {
+      background-color: var(--color-level-2);
+    }
+
+    &--level-2:hover::before {
       background-color: var(--color-level-3);
-
-      &:hover {
-        background-color: var(--color-level-4);
-        border-color: var(--color-level-4);
-      }
+      border-color: var(--color-level-4);
     }
 
-    &--level-4 {
-      background-color: var(--color-level-4);
+    &--level-3::before {
+      background-color: var(--color-level-3);
+    }
 
-      &:hover {
-        filter: brightness(1.1);
-        border-color: var(--color-level-4);
-      }
+    &--level-3:hover::before {
+      background-color: var(--color-level-4);
+      border-color: var(--color-level-4);
+    }
+
+    &--level-4::before {
+      background-color: var(--color-level-4);
+    }
+
+    &--level-4:hover::before {
+      filter: brightness(1.1);
+      border-color: var(--color-level-4);
     }
 
     // Hover effects
     &:hover {
+      z-index: 10;
+    }
+
+    &:hover::before {
       transform: scale(1.2);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      z-index: 10;
       border-radius: 3px;
+    }
+
+    // Padding days from groupByWeeks' whole-week fill: outside the period, so
+    // they hold the column open but draw nothing. visibility rather than display
+    // keeps their contribution to the column width.
+    &--outside {
+      cursor: default;
+
+      &::before {
+        visibility: hidden;
+      }
     }
 
     // Focus styles for accessibility
     &:focus-visible {
+      outline: none;
+    }
+
+    &:focus-visible::before {
       outline: 2px solid var(--color-level-3);
       outline-offset: 2px;
     }
@@ -195,12 +292,11 @@
 
   &__legend-text {
     color: var(--color-text-muted);
-    font-size: 12px;
+    font-size: var(--heatmap-label-size);
     font-weight: 500;
     margin: 0 4px;
 
     @media (max-width: 768px) {
-      font-size: 10px;
       margin: 0 2px;
     }
   }
@@ -256,7 +352,8 @@
 .contribution-heatmap {
   animation: fadeInUp 0.6s ease-out;
 
-  &__day {
+  // --animation-delay is set inline per cell and inherits into the pseudo-element.
+  &__day::before {
     animation: fadeInUp 0.3s ease-out;
     animation-delay: var(--animation-delay, 0s);
     animation-fill-mode: both;

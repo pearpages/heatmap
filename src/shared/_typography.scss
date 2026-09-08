@@ -1,0 +1,5 @@
+// The default UI font stack. Shared so the component and the bundled example
+// can't drift apart; consumers override the component's font through the
+// --heatmap-font-family custom property, not this variable.
+$font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica,
+  Arial, sans-serif;

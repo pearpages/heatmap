@@ -1,11 +1,11 @@
-import type { ContributionData, Period } from '@/shared/models';
+import { createDateString, type ContributionData, type Period } from '@/shared/models';
 
-function isInRange(date: Date, { start, end }: Period): boolean {
-  const actualStartDate = new Date(start);
-  const actualEndDate = new Date(end);
-  const contributionDate = new Date(date);
-
-  return contributionDate > actualStartDate && contributionDate < actualEndDate;
+// Compares whole days, in the same YYYY-MM-DD form the contributions carry.
+// Period boundaries are Date objects that keep a time of day, so comparing them
+// directly against a date-only value put the first and last day of the period
+// out of range. ISO date strings also sort correctly, so > and < still work.
+function isInRange(date: string, { start, end }: Period): boolean {
+  return date >= createDateString(start) && date <= createDateString(end);
 }
 
 const formatTooltip = (
@@ -20,14 +20,11 @@ const formatTooltip = (
     day: 'numeric',
   });
 
-  if (
-    !isInRange(new Date(contribution.date), { start, end }) ||
-    contribution.count === 0
-  ) {
+  if (!isInRange(contribution.date, { start, end }) || contribution.count === 0) {
     return `${formattedDate}: No contributions`;
   }
 
   return `${formattedDate}: ${contribution.count} contribution${contribution.count !== 1 ? 's' : ''}`;
 };
 
-export { formatTooltip };
+export { formatTooltip, isInRange };
