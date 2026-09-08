@@ -96,9 +96,8 @@ Two rules keep the grid honest; both were once broken and are easy to break agai
 - **The square is drawn by `&__day::before`, not the `<td>`.** The cell is only a slot.
   The reversed layout sizes its columns to the `Sun`/`Mon` headers, which are wider than
   `--day-size`, so a square painted on the cell itself stretches with the column. That
-  layout gets `--day-size: 20px` under `.contribution-heatmap--reverse` — declared after
-  the breakpoints so it wins at every width — otherwise a 12px square leaves ~10px of
-  slack in every cell.
+  layout gets `--day-size: 20px` under `.contribution-heatmap--reverse`, otherwise a 12px
+  square leaves ~10px of slack in every cell.
 - **The reversed layout's day headers are monospace**, which is a fix and not a style
   choice. Every name in `dayNames` is exactly three characters, so a monospace face
   renders all seven at one width; proportionally, `Fri` is 13.8px against `Wed`'s 23.7px,
@@ -116,6 +115,31 @@ outside the period. `isInRange` (`src/shared/formatTooltip.tsx`) is what separat
 it compares `YYYY-MM-DD` strings, never `Date` objects, because period boundaries carry a
 time of day that would push the period's own first and last day out of range. It drives
 both the tooltip wording and the `__day--outside` modifier that blanks the square.
+
+**`--day-size` deliberately does not shrink at the breakpoints.** It looks like a missing
+responsive step and it is not: a year is 53 weeks plus a label column, so the grid is
+507px wide even at 8px squares against ~373px of usable width on a phone. It scrolls at
+every size, so shrinking only cost legibility and left a 9px tap target on cells that are
+`role="button"`. The breakpoints keep the padding and `--day-gap` reductions, which are
+free — `border-spacing` is not part of a cell's hit area.
+
+**The root shrink-wraps with `display: inline-block`, not `width: fit-content`.** Safari
+resolves `fit-content` to `auto` on a block whose child is a scroll container — which
+`__scroll` is — and stretches the card full-width with its grid pinned left. Adding
+`-webkit-fit-content` does not help; the keyword is not the problem. CSS 2.1
+shrink-to-fit has no such disagreement. `display: table` also shrink-wraps but breaks the
+calendar, which then overflows its container instead of scrolling (818px at a 393px
+container, measured). The cost of `inline-block` is that the component is inline-level:
+an ancestor's `text-align` moves it, and whitespace between two adjacent heatmaps renders
+as a gap.
+
+**Below 480px the reversed layout stops hugging and fills the width instead**
+(`display: block; width: auto`, table at `width: 100%`, square at `width: 100%` +
+`aspect-ratio: 1`). The `display: block` is required, not redundant: a percentage width
+cannot resolve inside a shrink-to-fit parent, so the card must stop hugging before the
+table can fill it. Keep the table on **auto** layout — `table-layout: fixed` divides the
+width equally and hands the `Aug`/`Sep` label a full day column instead of collapsing it
+via `width: 1%`.
 
 `getMonthsForHeader` spans must total `weeks.length` exactly — the header row and the body
 rows are the same table. `getMonthsForHeader.test.ts` asserts this twice, deliberately.

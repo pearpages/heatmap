@@ -51,12 +51,20 @@
   box-shadow: 0 2px 8px var(--shadow-color);
   border: 1px solid var(--color-border);
   transition: var(--transition);
-  // Hug the grid rather than filling the container, so the legend stays with it.
-  // Falls back to the available width, at which point __scroll takes over.
-  // border-box matters here: the library ships no reset, and under content-box
-  // the padding is added on top of max-width and the card overflows its parent.
+  // Shrink-wrap the grid so the legend stays with it, falling back to the available
+  // width, at which point __scroll takes over.
+  //
+  // inline-block rather than width: fit-content. Safari resolves fit-content to auto
+  // on a block whose child is a scroll container (__scroll) and stretches the card to
+  // full width - observed on iOS, not reproducible in Chrome. CSS 2.1 shrink-to-fit
+  // has no such disagreement. display: table shrink-wraps too but breaks the
+  // calendar: it overflows its container instead of scrolling.
+  //
+  // border-box matters here: the library ships no reset, and under content-box the
+  // padding is added on top of max-width and the card overflows its parent.
   box-sizing: border-box;
-  width: fit-content;
+  display: inline-block;
+  vertical-align: top;
   max-width: 100%;
 
   // Only the grid scrolls - the padding, border and legend stay put.
@@ -149,24 +157,25 @@
     box-shadow: 0 4px 16px var(--shadow-color);
   }
 
-  // Mobile responsiveness. Now that the table is intrinsically sized these shrink
-  // the cells in both dimensions; anything that still doesn't fit scrolls.
+  // Mobile responsiveness. --day-size deliberately does NOT shrink here: a year is
+  // 53 weeks plus a label column, so the grid overflows a phone at every size it
+  // could reasonably take (507px at 8px squares, against ~373px of usable width).
+  // It scrolls either way, so shrinking only cost legibility and left a 9px tap
+  // target on cells that are role="button". Reclaiming the padding is free, and so
+  // is the tighter gap - border-spacing is not part of a cell's hit area.
   @media (max-width: 768px) {
-    --day-size: 10px;
     --day-gap: 1px;
     padding: 15px;
   }
 
   @media (max-width: 480px) {
-    --day-size: 8px;
     --day-gap: 1px;
     padding: 10px;
   }
 
   // The reversed layout puts the day names above the columns, so no column can be
   // narrower than "Wed". Grow the squares to match instead of leaving every one of
-  // them floating in a wider cell. Declared after the breakpoints above so it wins
-  // at every width - the grid is only seven columns, it always fits.
+  // them floating in a wider cell. Only seven columns, so it fits at any width.
   &--reverse {
     // Sized to clear the widest day header, which the monospace face below brings
     // down to 19.87px from the proportional "Wed" at 23.7px.
@@ -179,6 +188,35 @@
     .contribution-heatmap__day-header {
       font-family: var(--heatmap-day-header-font-family);
       text-align: center;
+    }
+
+    // On a phone the month grid is the only thing in the card, so let it fill the
+    // width instead of hugging - a full-width card reads as intentional when its
+    // content fills it, and this view is then correct whether or not the browser
+    // honours the shrink-to-fit above.
+    @media (max-width: 480px) {
+      // Required, not redundant: a percentage width cannot resolve inside a
+      // shrink-to-fit parent, so the card has to stop hugging before the table
+      // can fill it.
+      display: block;
+      width: auto;
+
+      // Auto layout, so __month-label's width: 1% still collapses the Aug/Sep
+      // column; table-layout: fixed would divide the width equally and give the
+      // label a full day column.
+      .contribution-heatmap__table {
+        width: 100%;
+      }
+
+      .contribution-heatmap__day {
+        height: auto;
+
+        &::before {
+          width: 100%;
+          height: auto;
+          aspect-ratio: 1;
+        }
+      }
     }
   }
 

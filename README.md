@@ -166,8 +166,8 @@ either:
 | `--heatmap-font-family` | a system UI stack | the font for every label |
 | `--heatmap-label-size` | `11px` | day names, month names, legend text |
 | `--heatmap-day-header-font-family` | a monospace stack | the day names above the reversed layout's columns |
-| `--day-size` | `12px` (`10px` ≤768px, `8px` ≤480px; `20px` reversed) | the side of each square |
-| `--day-gap` | `2px` | the space between squares |
+| `--day-size` | `12px` (`20px` reversed) | the side of each square |
+| `--day-gap` | `2px` (`1px` ≤768px) | the space between squares |
 
 ```css
 .contribution-heatmap {
@@ -182,6 +182,16 @@ the same wherever it is dropped. Override the property to blend it back in.
 Squares are always square: the grid is sized by its content and scrolls horizontally when
 it doesn't fit, rather than stretching to the container. The day-name column stays pinned
 while the weeks scroll under it.
+
+The component is inline-level (`display: inline-block`) so the card wraps its grid rather
+than stretching, which keeps the legend with the squares. Wrap it in a block of your own
+if you want it to fill the width. Below 480px the reversed layout fills the available
+width instead, scaling its squares up — at that size it is the only thing in the card.
+
+The squares keep their size on small screens rather than shrinking. A year is 53 weeks, so
+the grid overflows a phone whatever size they take — it scrolls either way, and shrinking
+would only cost legibility and tap area. Set `--day-size` yourself if you want a denser
+grid.
 
 With `isReverse`, the root also carries `contribution-heatmap--reverse`. That layout puts
 the day names above their columns rather than beside the rows, so no column can be
