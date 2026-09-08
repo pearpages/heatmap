@@ -2,7 +2,7 @@ import { defineConfig } from "tsup";
 import { sassPlugin } from "esbuild-sass-plugin";
 
 export default defineConfig({
-  entry: ["src/index.ts"],
+  entry: { index: "src/index.ts", example: "src/entries/example.ts" },
   format: ["esm"],
   dts: true,
   sourcemap: true,

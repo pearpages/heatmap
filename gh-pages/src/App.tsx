@@ -1,4 +1,4 @@
-import { ContributionHeatmapExample } from "@pearpages/heatmap";
+import { ContributionHeatmapExample } from "@pearpages/heatmap/example";
 import json from "../../package.json";
 
 function App() {

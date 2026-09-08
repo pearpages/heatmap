@@ -1,6 +1,7 @@
 {
   "name": "@pearpages/heatmap",
   "version": "0.2.0",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/pearpages/heatmap"
@@ -15,7 +16,12 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./styles.css": "./dist/index.css"
+    "./styles.css": "./dist/index.css",
+    "./example": {
+      "import": "./dist/example.js",
+      "types": "./dist/example.d.ts"
+    },
+    "./example.css": "./dist/example.css"
   },
   "types": "./dist/index.d.ts",
   "files": [
@@ -26,7 +32,8 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "vitest"
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "peerDependencies": {
     "react": "^19.1.1",
@@ -37,6 +44,7 @@
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
     "esbuild-sass-plugin": "^3.3.1",
+    "jsdom": "^29.1.1",
     "sass": "^1.92.1",
     "tsup": "^8",
     "typescript": "^5",
