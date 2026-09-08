@@ -222,20 +222,12 @@
     }
 
     // On a phone the month grid is the only thing in the card, so let it fill the
-    // width instead of hugging - a full-width card reads as intentional when its
-    // content fills it, and this view is then correct whether or not the browser
-    // honours the shrink-to-fit above.
+    // width - 20px squares marooned in a full-width card look lost. The square
+    // already fills its cell above, so widening the table is all that is needed.
+    // Auto layout, so __month-label's width: 1% still collapses the Aug/Sep column;
+    // table-layout: fixed would divide the width equally and hand the label a full
+    // day column.
     @media (max-width: 480px) {
-      // Required, not redundant: a percentage width cannot resolve inside a
-      // shrink-to-fit parent, so the card has to stop hugging before the table
-      // can fill it.
-      display: block;
-      width: auto;
-
-      // Auto layout, so __month-label's width: 1% still collapses the Aug/Sep
-      // column; table-layout: fixed would divide the width equally and give the
-      // label a full day column. The square already fills its cell above, so
-      // widening the table is all that is needed here.
       .contribution-heatmap__table {
         width: 100%;
       }

@@ -77,8 +77,18 @@ For reference, these are the thresholds the bundled mock generator uses:
 ### Data shape
 
 `groupByWeeks` turns a flat, day-per-entry array into the `Week[]` the component renders.
-It pads out to the enclosing Sunday…Saturday and fills any missing day with
-`{ count: 0, level: 0 }`, so gaps in your input are safe.
+It pads out to whole weeks and fills any missing day with `{ count: 0, level: 0 }`, so
+gaps in your input are safe.
+
+Weeks start on Sunday by default, the GitHub convention. Pass `weekStartsOn` for anywhere
+that doesn't — most of Europe runs Monday to Sunday:
+
+```tsx
+groupByWeeks(contribution, { weekStartsOn: 1 })   // Monday
+```
+
+The component takes no matching prop: it reads the first day off the weeks it is given, so
+the two can never disagree.
 
 Two period helpers are exported for the common cases:
 
@@ -117,6 +127,10 @@ given, so it cannot disagree with them. Set it on `groupByWeeks` instead.
 
 Each cell is a `<td>` carrying `data-count`, `data-date`, a
 `contribution-heatmap__day--level-N` class, and a `title` / `aria-label` tooltip.
+
+The exception is the padding days that fall outside your period: they keep `data-count`
+and `data-date`, but carry `contribution-heatmap__day--outside` and **no** tooltip, `role`
+or `tabIndex`, so they stay out of the tab order and the accessibility tree.
 
 ## Themes
 
@@ -176,7 +190,7 @@ either:
 | `--heatmap-font-family` | a system UI stack | the font for every label |
 | `--heatmap-label-size` | `11px` | day names, month names, legend text |
 | `--heatmap-day-header-font-family` | a monospace stack | the day names above the reversed layout's columns |
-| `--day-size` | `12px` (`20px` reversed) | the side of each square |
+| `--day-size` | `12px`; `20px` minimum when reversed | the side of each square in the default layout |
 | `--day-gap` | `2px` (`1px` ≤768px) | the space between squares |
 
 ```css
@@ -211,13 +225,17 @@ oversized cells.
 
 Those headers are set in a monospace face. Every day name is exactly three characters, so
 a monospace one renders all seven at an identical width — in a proportional face `Fri` is
-10px narrower than `Wed`, which leaves visibly more air around it. Override
-`--heatmap-day-header-font-family` (and `--day-size`, which is sized to clear the label)
-under that class to change it.
+10px narrower than `Wed`, which leaves visibly more air around it.
 
-The grid always renders whole Sunday–Saturday weeks, so the first and last week can hold
-days outside your period. Those slots are left blank — no square, no tooltip, not
-focusable — rather than being drawn as zero-contribution days.
+Because the column can be no narrower than its header, and that width depends on the
+locale — `Wed` is 20px, French `mer.` is 26.5px — the reversed square **fills its cell**
+rather than taking a fixed size. `--day-size` is only a floor there. That is what keeps the
+squares flush in any language. Override `--heatmap-day-header-font-family` under that
+class to change the face.
+
+The grid always renders whole weeks, so the first and last week can hold days outside your
+period. Those slots are left blank — no square, no tooltip, not focusable — rather than
+being drawn as zero-contribution days.
 
 ## Languages
 
@@ -242,7 +260,6 @@ The library ships no translations. Day and month names come from `Intl` for what
 weeks Monday to Sunday, so a translated heatmap that still starts on Sunday reads as
 wrong. It defaults to `0` (Sunday, the GitHub convention), and the component picks the
 order of its day labels up from the data.
-
 
 ## Local development
 
