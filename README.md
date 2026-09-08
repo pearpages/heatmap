@@ -9,8 +9,6 @@ React component that "copies" the style of _Github_ for showing heatmaps.
 
 [Demo](https://heatmap.pearpages.com)
 
-![alt heatmaps](assets/demo.png)
-
 ## Installation
 
 ```bash
