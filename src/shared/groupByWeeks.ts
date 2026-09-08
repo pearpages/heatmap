@@ -16,15 +16,20 @@ const createContributionMap = (
   return contributionMap;
 };
 
-const getFirstSunday: (firstDate: Date) => Date = (firstDate) => {
+// Days from weekStartsOn back to the given date's weekday, e.g. with a Monday start
+// (1) a Sunday (0) is six days into the week, not minus one.
+const daysIntoWeek = (date: Date, weekStartsOn: number): number =>
+  (date.getDay() - weekStartsOn + 7) % 7;
+
+const getFirstDayOfWeek = (firstDate: Date, weekStartsOn: number): Date => {
   const startOfWeek = new Date(firstDate);
-  startOfWeek.setDate(firstDate.getDate() - firstDate.getDay());
+  startOfWeek.setDate(firstDate.getDate() - daysIntoWeek(firstDate, weekStartsOn));
   return startOfWeek;
 };
 
-const getLastSaturday: (lastDate: Date) => Date = (lastDate) => {
+const getLastDayOfWeek = (lastDate: Date, weekStartsOn: number): Date => {
   const endOfWeek = new Date(lastDate);
-  endOfWeek.setDate(lastDate.getDate() + (6 - lastDate.getDay()));
+  endOfWeek.setDate(lastDate.getDate() + (6 - daysIntoWeek(lastDate, weekStartsOn)));
   return endOfWeek;
 };
 
@@ -49,15 +54,22 @@ const createWeek = (
   return week as Week;
 };
 
-const groupByWeeks: (contributions: ContributionData[]) => Week[] = (
-  contributions,
-) => {
+interface GroupByWeeksOptions {
+  // 0 = Sunday (the default, and the US/GitHub convention), 1 = Monday, and so on.
+  weekStartsOn?: number;
+}
+
+const groupByWeeks = (
+  contributions: ContributionData[],
+  { weekStartsOn = 0 }: GroupByWeeksOptions = {},
+): Week[] => {
   const weeks: Week[] = [];
   const contributionMap = createContributionMap(contributions);
 
-  const firstDay = getFirstSunday(new Date(contributions[0].date));
-  const lastDate = getLastSaturday(
+  const firstDay = getFirstDayOfWeek(new Date(contributions[0].date), weekStartsOn);
+  const lastDate = getLastDayOfWeek(
     new Date(contributions[contributions.length - 1].date),
+    weekStartsOn,
   );
 
   const currentDate = new Date(firstDay);
@@ -70,3 +82,4 @@ const groupByWeeks: (contributions: ContributionData[]) => Week[] = (
 };
 
 export { groupByWeeks };
+export type { GroupByWeeksOptions };

@@ -109,4 +109,53 @@ describe('ContributionHeatmap', () => {
       container.querySelectorAll('.contribution-heatmap__legend-item'),
     ).toHaveLength(5);
   });
+
+  it('derives day names from the locale', () => {
+    render(<ContributionHeatmap locale="ca" data={data} />);
+
+    expect(screen.getByText('dg.')).toBeDefined();
+    expect(screen.getByText('ds.')).toBeDefined();
+  });
+
+  it('reads the week start off the data rather than a prop', () => {
+    const mondayData = { ...data, weeks: groupByWeeks(contribution, { weekStartsOn: 1 }) };
+    const { container } = render(<ContributionHeatmap data={mondayData} />);
+    const labels = [...container.querySelectorAll('.contribution-heatmap__day-label')];
+
+    expect(labels[0].textContent).toBe('Mon');
+    expect(labels[6].textContent).toBe('Sun');
+  });
+
+  it('passes labels through to the legend', () => {
+    render(
+      <ContributionHeatmap
+        data={data}
+        labels={{ less: 'Menys', more: 'Més' }}
+      />,
+    );
+
+    expect(screen.getByText('Menys')).toBeDefined();
+    expect(screen.getByText('Més')).toBeDefined();
+  });
+
+  it('localises the tooltip through locale and labels', () => {
+    const { container } = render(
+      <ContributionHeatmap
+        locale="ca"
+        labels={{ contributions: (n) => `${n} contribucions` }}
+        data={data}
+      />,
+    );
+    const target = container.querySelector('[data-date="2024-01-11"]');
+
+    expect(target?.getAttribute('aria-label')).toContain('7 contribucions');
+  });
+
+  it('carries a forced colour scheme onto the root', () => {
+    const { container } = render(
+      <ContributionHeatmap className="contribution-heatmap--light" data={data} />,
+    );
+
+    expect(container.querySelector('.contribution-heatmap--light')).not.toBeNull();
+  });
 });

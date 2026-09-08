@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { getMonthsForHeader } from './getMonthsForHeader';
 import { groupByWeeks } from '@/shared/groupByWeeks';
+import { getMonthNames } from '@/shared/intl';
 import { createDateString, type ContributionData, type Period } from '@/shared/models';
 
 const range = (from: string, to: string): ContributionData[] => {
@@ -63,5 +64,25 @@ describe('getMonthsForHeader', () => {
     const period: Period = { start: new Date('2024-01-01'), end: new Date('2024-01-31') };
 
     expect(getMonthsForHeader({ weeks: [], period })).toEqual([]);
+  });
+
+  it('uses the month names it is given', () => {
+    const period: Period = { start: new Date('2024-01-01'), end: new Date('2024-03-31') };
+    const weeks = groupByWeeks(range('2024-01-01', '2024-03-31'));
+    const months = getMonthsForHeader({
+      weeks,
+      period,
+      monthNames: getMonthNames('ca'),
+    });
+
+    expect(months.map((m) => m.name)).toEqual(['gen.', 'febr.', 'març']);
+  });
+
+  it('still covers every week with a Monday start', () => {
+    const period: Period = { start: new Date('2024-01-01'), end: new Date('2024-03-31') };
+    const weeks = groupByWeeks(range('2024-01-01', '2024-03-31'), { weekStartsOn: 1 });
+    const months = getMonthsForHeader({ weeks, period });
+
+    expect(months.reduce((sum, m) => sum + m.span, 0)).toBe(weeks.length);
   });
 });

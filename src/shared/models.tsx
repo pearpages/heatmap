@@ -18,6 +18,26 @@ type Week = [
 
 type Period = { start: Date; end: Date };
 
+// The strings Intl cannot derive from a locale. Day and month names are not here:
+// those come from the locale itself, via src/shared/intl.ts.
+interface HeatmapLabels {
+  less?: string;
+  more?: string;
+  level?: (level: number) => string;
+  noContributions?: string;
+  contributions?: (count: number) => string;
+}
+
+const defaultLabels: Required<HeatmapLabels> = {
+  less: 'Less',
+  more: 'More',
+  level: (level) => `Level ${level}`,
+  noContributions: 'No contributions',
+  contributions: (count) => `${count} contribution${count !== 1 ? 's' : ''}`,
+};
+
+const DEFAULT_LOCALE = 'en-US';
+
 const monthNames = [
   'Jan',
   'Feb',
@@ -56,5 +76,13 @@ function getLastMonthPeriod(): Period {
 const createDateString = (date: Date): string =>
   date.toISOString().split('T')[0];
 
-export type { ContributionData, Week, Period, Theme };
-export { monthNames, dayNames, createDateString, getLastYearPeriod, getLastMonthPeriod };
+export type { ContributionData, Week, Period, Theme, HeatmapLabels };
+export {
+  monthNames,
+  dayNames,
+  defaultLabels,
+  DEFAULT_LOCALE,
+  createDateString,
+  getLastYearPeriod,
+  getLastMonthPeriod,
+};

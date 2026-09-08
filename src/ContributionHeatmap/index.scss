@@ -3,6 +3,18 @@
 @use 'sass:meta';
 @use '../shared/typography';
 
+@mixin dark-tokens {
+  --color-bg: #0d1117;
+  --color-border: #30363d;
+  --color-text: #f0f6fc;
+  --color-text-muted: #8b949e;
+  --color-level-0: #161b22;
+  --color-level-1: #0e4429;
+  --color-level-2: #006d32;
+  --color-level-3: #26a641;
+  --color-level-4: #39d353;
+}
+
 .contribution-heatmap {
   // Typography - overridable exactly like the colour tokens below
   // meta.inspect keeps the quotes that plain interpolation would strip.
@@ -28,17 +40,25 @@
   --color-level-3: #30a14e;
   --color-level-4: #216e39;
 
-  // Dark mode support
+  // Dark mode. Follows the system by default; --light and --dark force it either way,
+  // which is why the palette is a mixin - it has to be emitted twice, once guarded by
+  // :not(--light) so forcing light wins under a dark system, and once unguarded on
+  // --dark so forcing dark wins under a light one.
+  color-scheme: light dark;
+
   @media (prefers-color-scheme: dark) {
-    --color-bg: #0d1117;
-    --color-border: #30363d;
-    --color-text: #f0f6fc;
-    --color-text-muted: #8b949e;
-    --color-level-0: #161b22;
-    --color-level-1: #0e4429;
-    --color-level-2: #006d32;
-    --color-level-3: #26a641;
-    --color-level-4: #39d353;
+    &:not(.contribution-heatmap--light) {
+      @include dark-tokens;
+    }
+  }
+
+  &--dark {
+    @include dark-tokens;
+    color-scheme: dark;
+  }
+
+  &--light {
+    color-scheme: light;
   }
 
   font-family: var(--heatmap-font-family);
@@ -51,20 +71,17 @@
   box-shadow: 0 2px 8px var(--shadow-color);
   border: 1px solid var(--color-border);
   transition: var(--transition);
-  // Shrink-wrap the grid so the legend stays with it, falling back to the available
-  // width, at which point __scroll takes over.
-  //
-  // inline-block rather than width: fit-content. Safari resolves fit-content to auto
-  // on a block whose child is a scroll container (__scroll) and stretches the card to
-  // full width - observed on iOS, not reproducible in Chrome. CSS 2.1 shrink-to-fit
-  // has no such disagreement. display: table shrink-wraps too but breaks the
-  // calendar: it overflows its container instead of scrolling.
+  // An ordinary full-width block. It used to shrink-wrap its grid so the legend stayed
+  // with it, but WebKit would not do that by any means tried - width: fit-content,
+  // -webkit-fit-content, and CSS 2.1 inline-block all render full width on iOS while
+  // Chrome shrink-wraps all three. The common factor is the scroll container child
+  // (__scroll), though that was never confirmed. Rather than guess a fourth time, the
+  // legend is aligned to the start instead, so a full-width card reads correctly
+  // whatever the reason - and every browser now renders the same thing.
   //
   // border-box matters here: the library ships no reset, and under content-box the
   // padding is added on top of max-width and the card overflows its parent.
   box-sizing: border-box;
-  display: inline-block;
-  vertical-align: top;
   max-width: 100%;
 
   // Only the grid scrolls - the padding, border and legend stay put.
@@ -190,6 +207,20 @@
       text-align: center;
     }
 
+    // The column is only ever as narrow as its day-name header, and that width is
+    // locale-dependent: "Wed" is three characters, French "mer." is four. Fill the
+    // cell rather than sitting at a fixed px size, so the square tracks whatever the
+    // header needs and never leaves slack. --day-size above is the floor.
+    .contribution-heatmap__day {
+      height: auto;
+
+      &::before {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1;
+      }
+    }
+
     // On a phone the month grid is the only thing in the card, so let it fill the
     // width instead of hugging - a full-width card reads as intentional when its
     // content fills it, and this view is then correct whether or not the browser
@@ -203,19 +234,10 @@
 
       // Auto layout, so __month-label's width: 1% still collapses the Aug/Sep
       // column; table-layout: fixed would divide the width equally and give the
-      // label a full day column.
+      // label a full day column. The square already fills its cell above, so
+      // widening the table is all that is needed here.
       .contribution-heatmap__table {
         width: 100%;
-      }
-
-      .contribution-heatmap__day {
-        height: auto;
-
-        &::before {
-          width: 100%;
-          height: auto;
-          aspect-ratio: 1;
-        }
       }
     }
   }
@@ -324,7 +346,10 @@
   &__legend {
     display: flex;
     align-items: center;
-    justify-content: center;
+    // Start-aligned, not centred: the card is as wide as its container while the grid
+    // is only as wide as its content, so centring floats the legend away from the
+    // squares it describes.
+    justify-content: flex-start;
     gap: 4px;
     margin-top: 12px;
     flex-wrap: wrap;

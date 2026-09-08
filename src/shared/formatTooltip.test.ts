@@ -48,4 +48,31 @@ describe('formatTooltip', () => {
       'Tue, Dec 31, 2024: 5 contributions',
     );
   });
+
+  it('formats the date in the given locale', () => {
+    expect(formatTooltip(contribution('2024-06-12', 2), period, { locale: 'ca' })).toContain(
+      'de juny',
+    );
+  });
+
+  it('uses supplied labels instead of the English defaults', () => {
+    const labels = {
+      noContributions: 'Cap contribució',
+      contributions: (count: number) =>
+        count === 1 ? '1 contribució' : `${count} contribucions`,
+    };
+
+    expect(
+      formatTooltip(contribution('2024-06-12', 3), period, { locale: 'ca', labels }),
+    ).toContain('3 contribucions');
+    expect(
+      formatTooltip(contribution('2024-06-12', 0), period, { locale: 'ca', labels }),
+    ).toContain('Cap contribució');
+  });
+
+  it('names the day in UTC, not the runner local zone', () => {
+    // The date string parses as UTC midnight; formatting it locally would name the
+    // previous day anywhere west of Greenwich.
+    expect(formatTooltip(contribution('2024-06-12', 1), period)).toContain('Wed');
+  });
 });

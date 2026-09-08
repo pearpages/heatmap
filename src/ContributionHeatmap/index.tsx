@@ -1,14 +1,22 @@
 import './index.scss';
-import type { ContributionData, Period, Week as WeekType } from '../shared/models';
+import type {
+  ContributionData,
+  HeatmapLabels,
+  Period,
+  Week as WeekType,
+} from '../shared/models';
 import { getMonthsForHeader } from './getMonthsForHeader';
 import { formatTooltip, isInRange } from '@/shared/formatTooltip';
-import { dayNames } from '@/shared/models';
+import { DEFAULT_LOCALE } from '@/shared/models';
+import { getDayNames, getMonthNames } from '@/shared/intl';
 import { Legend } from '@/shared/Legend';
 
 
 interface DayCellProps {
   contribution: ContributionData;
   period: Period;
+  locale: string;
+  labels?: HeatmapLabels;
   // Position in the grid, used to stagger the load animation.
   delayIndex: number;
 }
@@ -16,9 +24,9 @@ interface DayCellProps {
 // groupByWeeks pads every week out to Sun-Sat, so the first and last week carry days
 // that fall outside the period. They keep their slot - the columns depend on seven
 // cells per row - but render no square and stay out of the a11y tree.
-function DayCell({ contribution, period, delayIndex }: DayCellProps) {
+function DayCell({ contribution, period, locale, labels, delayIndex }: DayCellProps) {
   const inRange = isInRange(contribution.date, period);
-  const tooltip = formatTooltip(contribution, period);
+  const tooltip = formatTooltip(contribution, period, { locale, labels });
 
   return (
     <td
@@ -44,14 +52,24 @@ interface ContributionHeatmapProps {
   data: { contribution: ContributionData[]; period: Period; weeks: WeekType[] };
   className?: string;
   isReverse?: boolean;
+  // Drives day names, month names and the tooltip date through Intl.
+  locale?: string;
+  // The handful of strings Intl cannot derive.
+  labels?: HeatmapLabels;
 }
 
 function ContributionHeatmap({
   data: { period, weeks },
   className = '',
   isReverse = false,
+  locale = DEFAULT_LOCALE,
+  labels,
 }: ContributionHeatmapProps) {
-  const months = getMonthsForHeader({ weeks, period });
+  // Read the week start off the data rather than taking a prop: groupByWeeks already
+  // decided it, and a prop could disagree with the weeks it was handed.
+  const weekStartsOn = weeks.length ? new Date(weeks[0][0].date).getUTCDay() : 0;
+  const dayNames = getDayNames(locale, weekStartsOn);
+  const months = getMonthsForHeader({ weeks, period, monthNames: getMonthNames(locale) });
 
   return (
     <div
@@ -92,6 +110,8 @@ function ContributionHeatmap({
                           key={dayIndex}
                           contribution={contribution}
                           period={period}
+                          locale={locale}
+                          labels={labels}
                           delayIndex={weekIndex * 7 + dayIndex}
                         />
                       ))}
@@ -135,6 +155,8 @@ function ContributionHeatmap({
                           key={weekIndex}
                           contribution={contribution}
                           period={period}
+                          locale={locale}
+                          labels={labels}
                           delayIndex={weekIndex * 7 + dayIndex}
                         />
                       );
@@ -146,7 +168,7 @@ function ContributionHeatmap({
           )}
         </table>
       </div>
-      <Legend />
+      <Legend labels={labels} />
     </div>
   );
 }

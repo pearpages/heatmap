@@ -1,1 +1,0 @@
-export { ContributionHeatmapExample } from '@/Example';

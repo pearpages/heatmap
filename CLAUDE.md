@@ -13,13 +13,12 @@ contribution heatmap. Published to npm, demo deployed to
 | Path | Role |
 | --- | --- |
 | `src/` | The library itself — the only thing published (`files: ["dist"]`) |
-| `src/entries/example.ts` | Barrel for the `@pearpages/heatmap/example` subpath |
 | `demo/` | The dev sandbox **and** the deployed site; an npm workspace |
 
 ## Development loop
 
 `demo/` is a single Vite app that imports the library by its public specifier
-(`@pearpages/heatmap/example`) and resolves it two different ways:
+(`@pearpages/heatmap`) and resolves it two different ways:
 
 | Command (repo root) | Resolves to | Use for |
 | --- | --- | --- |
@@ -41,23 +40,16 @@ incompatible `vite` type trees (vitest 2 pins its own vite 5).
 
 ## Build
 
-`tsup` (esbuild) with `esbuild-sass-plugin`, two entry points:
+`tsup` (esbuild) with `esbuild-sass-plugin`, one entry point:
 
 ```
-src/index.ts          -> dist/index.js   + dist/index.css    ("." and "./styles.css")
-src/entries/example.ts -> dist/example.js + dist/example.css  ("./example" and "./example.css")
+src/index.ts -> dist/index.js + dist/index.css    ("." and "./styles.css")
 ```
 
-The demo (`src/Example/`) is deliberately kept out of the main entry so consumers don't
-download `ControlGroups`, the mock generators, or their SCSS. **Keep it that way** — do
-not re-export `./Example` from `src/index.ts`.
-
-`dist/example.css` is a superset of `dist/index.css`; consumers import one or the other,
-never both.
-
-Note the entry barrel lives at `src/entries/example.ts`, not `src/example.ts`: on a
-case-insensitive filesystem the latter collides with the `src/Example/` directory and the
-build fails with "Detected cycle while resolving import".
+There was a second `./example` entry shipping a ready-made demo widget. It was removed:
+its controls were unstyled, its panel ignored dark mode, and the demo site does the same
+job better as a real consumer. Removing it was a **breaking change** — if it comes back,
+it comes back as a separate package, not a subpath.
 
 ## Conventions
 
@@ -79,9 +71,16 @@ automatic via `prefers-color-scheme`.
 `level` is caller-supplied and drives the colour; the component never derives it from
 `count`.
 
+Light and dark are classes too: `--light` and `--dark` force a scheme, and with neither
+the component follows `prefers-color-scheme`. The dark palette lives in a `dark-tokens`
+mixin because it has to be emitted twice — once guarded by `:not(--light)` inside the
+media query so forcing light wins under a dark system, and once unguarded on `--dark` so
+forcing dark wins under a light one. Dropping either copy silently breaks one direction,
+and a light-mode desktop will not catch it.
+
 The same custom-property mechanism carries typography and sizing:
-`--heatmap-font-family` (a system stack, shared with the example via
-`src/shared/_typography.scss`), `--heatmap-label-size`, `--day-size`, `--day-gap`. The
+`--heatmap-font-family` (a system stack, from `src/shared/_typography.scss`),
+`--heatmap-label-size`, `--day-size`, `--day-gap`. The
 component declares its own font deliberately — inheriting the host's meant it rendered in
 Times on any page that sets none.
 
@@ -93,6 +92,11 @@ Two rules keep the grid honest; both were once broken and are easy to break agai
   `width: 100%` with `table-layout: fixed`. Under fixed layout the cell widths are
   ignored, `--day-size` silently degrades to a height-only knob, and the grid can never
   overflow — so `__scroll`'s `overflow-x` becomes dead code.
+- **The reversed layout's square fills its cell** (`width: 100%; aspect-ratio: 1`) rather
+  than taking a fixed `--day-size`. The column is as wide as its day-name header, and
+  that is locale-dependent: `Wed` is three characters, French `mer.` is four (20px vs
+  26.5px, measured). A fixed size leaves slack in any locale whose names are longer than
+  English. `--day-size: 20px` remains as the floor.
 - **The square is drawn by `&__day::before`, not the `<td>`.** The cell is only a slot.
   The reversed layout sizes its columns to the `Sun`/`Mon` headers, which are wider than
   `--day-size`, so a square painted on the cell itself stretches with the column. That
@@ -110,7 +114,25 @@ Two rules keep the grid honest; both were once broken and are easy to break agai
   gets `--last`, which anchors its label to the right so it overhangs inwards instead of
   extending the scroll area.
 
-`groupByWeeks` always pads to whole Sun-Sat weeks, so the first and last week carry days
+## Localisation
+
+The library ships **no translations**, deliberately. `src/shared/intl.ts` derives day and
+month names from a `locale` via `Intl`; `HeatmapLabels` covers the few strings it cannot
+(`Less`, `More`, `Level N`, the contribution counts). `en-US` reproduces the exported
+`dayNames`/`monthNames` constants exactly, which is why defaulting to it changed no
+existing output. Those constants stay exported — they are public API — they are simply no
+longer the component's internal source.
+
+Everything that formats a date pins `timeZone: 'UTC'`. Contribution dates are date-only
+strings that parse as UTC midnight, so formatting them in a local zone names the previous
+day anywhere west of Greenwich.
+
+`weekStartsOn` lives on `groupByWeeks`, not on the component: the component reads the
+first day off `weeks[0][0].date`, so a prop can never disagree with the data it was
+handed. Note that a "translated" heatmap which still starts weeks on Sunday is wrong for
+most of Europe — the two go together.
+
+`groupByWeeks` always pads to whole weeks, so the first and last week carry days
 outside the period. `isInRange` (`src/shared/formatTooltip.tsx`) is what separates them:
 it compares `YYYY-MM-DD` strings, never `Date` objects, because period boundaries carry a
 time of day that would push the period's own first and last day out of range. It drives
@@ -123,15 +145,19 @@ every size, so shrinking only cost legibility and left a 9px tap target on cells
 `role="button"`. The breakpoints keep the padding and `--day-gap` reductions, which are
 free — `border-spacing` is not part of a cell's hit area.
 
-**The root shrink-wraps with `display: inline-block`, not `width: fit-content`.** Safari
-resolves `fit-content` to `auto` on a block whose child is a scroll container — which
-`__scroll` is — and stretches the card full-width with its grid pinned left. Adding
-`-webkit-fit-content` does not help; the keyword is not the problem. CSS 2.1
-shrink-to-fit has no such disagreement. `display: table` also shrink-wraps but breaks the
-calendar, which then overflows its container instead of scrolling (818px at a 393px
-container, measured). The cost of `inline-block` is that the component is inline-level:
-an ancestor's `text-align` moves it, and whitespace between two adjacent heatmaps renders
-as a gap.
+**The root does not shrink-wrap — do not try to make it.** Three mechanisms were tried
+and all three render full-width on iOS Safari while shrink-wrapping correctly in Chrome:
+`width: fit-content`, `-webkit-fit-content`, and CSS 2.1 `display: inline-block`. The
+only common factor is that the card's child is a scroll container (`__scroll`,
+`overflow-x: auto`), but that was never confirmed — there is no WebKit in the dev
+environment. `display: table` shrink-wraps but breaks the calendar, which then overflows
+its container instead of scrolling (818px at a 393px container, measured).
+
+The card is therefore a plain block that fills its container, and
+`&__legend` is `justify-content: flex-start` so it sits under the grid instead of
+floating in the middle of a wide card. This renders identically everywhere and does not
+depend on a diagnosis nobody has verified. If you are tempted to re-add a hug, note that
+the visible symptom of it failing is subtle: it looks right in Chrome.
 
 **Below 480px the reversed layout stops hugging and fills the width instead**
 (`display: block; width: auto`, table at `width: 100%`, square at `width: 100%` +
@@ -178,9 +204,6 @@ README's Releasing section.
       Fix by formatting from local date components — and note that the `new Date(dateStr)`
       parses elsewhere (`formatTooltip`, `getMonthsForHeader`) read as UTC, so they move
       with it. Tests are in place as a safety net.
-- [ ] **`.theme-button` has no styles.** `ControlGroups.tsx` renders
-      `theme-button` / `theme-button--active` classes but no SCSS defines them, so the
-      demo's theme switcher is unstyled and the active state is invisible.
 - [ ] **`getLastMonthPeriod` short window.** From a 31st it computes e.g. Feb 32, which
       normalises forward to Mar 3 — the "last month" window can be under four weeks and
       never reach the previous month.

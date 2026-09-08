@@ -1,11 +1,14 @@
-import { monthNames, type Period, type Week } from '@/shared/models';
+import { monthNames as defaultMonthNames, type Period, type Week } from '@/shared/models';
 
 function getMonthsForHeader({
   weeks,
   period,
+  monthNames = defaultMonthNames,
 }: {
   weeks: Week[];
   period: Period;
+  // Locale-derived; falls back to the exported English constants.
+  monthNames?: readonly string[];
 }): {
   name: string;
   span: number;
@@ -31,9 +34,10 @@ function getMonthsForHeader({
         }
       }
 
-      // If no day in the week is in our actual range, use the middle day (Wednesday)
+      // If no day in the week is in our actual range, use the middle of the week
+      // (index 3 - which weekday that is depends on weekStartsOn)
       if (monthToUse === -1) {
-        const middleDay = week[3]; // Wednesday (index 3)
+        const middleDay = week[3];
         monthToUse = new Date(middleDay.date).getMonth();
       }
 

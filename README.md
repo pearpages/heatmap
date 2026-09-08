@@ -98,19 +98,6 @@ const contribution = generateMockData({ period, isRealistic: true });
 `isRealistic: true` produces weekday-weighted data — quieter weekends, a summer lull in
 June–August, and the occasional spike. `false` is uniform random.
 
-### Ready-made demo
-
-The interactive demo used on the [demo site](https://heatmap.pearpages.com) — theme
-switcher, sample-data toggle, and both layouts — ships as a separate entry point, so it
-stays out of your bundle unless you ask for it:
-
-```tsx
-import { ContributionHeatmapExample } from '@pearpages/heatmap/example';
-import '@pearpages/heatmap/example.css';
-```
-
-`example.css` is a **superset** of `styles.css` — import one or the other, not both.
-
 ## Props
 
 `ContributionHeatmap`:
@@ -119,9 +106,14 @@ import '@pearpages/heatmap/example.css';
 | --- | --- | --- | --- |
 | `data.contribution` | `ContributionData[]` | required | Flat, one entry per day |
 | `data.period` | `Period` | required | `{ start: Date; end: Date }`. Drives the month headers and whether a tooltip reads as in-range |
-| `data.weeks` | `Week[]` | required | 7-item tuples, Sunday-first — use `groupByWeeks` |
-| `className` | `string` | `''` | Appended to the root element; this is how themes are applied |
+| `data.weeks` | `Week[]` | required | 7-item tuples — use `groupByWeeks` |
+| `className` | `string` | `''` | Appended to the root element; this is how themes and the colour scheme are applied |
 | `isReverse` | `boolean` | `false` | Vertical layout: one row per week, weekdays as columns |
+| `locale` | `string` | `'en-US'` | Drives day names, month names and the tooltip date through `Intl` |
+| `labels` | `HeatmapLabels` | English | The few strings `Intl` cannot derive |
+
+There is no `weekStartsOn` prop: the component reads the first day off the weeks it is
+given, so it cannot disagree with them. Set it on `groupByWeeks` instead.
 
 Each cell is a `<td>` carrying `data-count`, `data-date`, a
 `contribution-heatmap__day--level-N` class, and a `title` / `aria-label` tooltip.
@@ -154,7 +146,25 @@ custom properties, so you can define your own the same way:
 }
 ```
 
-Dark mode is automatic via `prefers-color-scheme` — there is no prop or toggle.
+### Light and dark
+
+By default the component follows `prefers-color-scheme`. Two more classes force it:
+
+| | `className` |
+| --- | --- |
+| Follow the system | _none_ |
+| Always light | `contribution-heatmap--light` |
+| Always dark | `contribution-heatmap--dark` |
+
+They combine with a colour theme, and they also set `color-scheme`, so the grid's
+scrollbar matches:
+
+```tsx
+<ContributionHeatmap
+  className="contribution-heatmap--light contribution-heatmap--ocean"
+  data={...}
+/>
+```
 
 ### Typography and sizing
 
@@ -183,10 +193,11 @@ Squares are always square: the grid is sized by its content and scrolls horizont
 it doesn't fit, rather than stretching to the container. The day-name column stays pinned
 while the weeks scroll under it.
 
-The component is inline-level (`display: inline-block`) so the card wraps its grid rather
-than stretching, which keeps the legend with the squares. Wrap it in a block of your own
-if you want it to fill the width. Below 480px the reversed layout fills the available
-width instead, scaling its squares up — at that size it is the only thing in the card.
+The card is an ordinary block, so it fills its container; the legend is aligned to the
+start so it sits under the squares rather than floating in the middle of a wide card.
+Wrap it in a narrower element of your own if you want it tighter. Below 480px the
+reversed layout scales its squares up to fill the width, since at that size it is the
+only thing in the card.
 
 The squares keep their size on small screens rather than shrinking. A year is 53 weeks, so
 the grid overflows a phone whatever size they take — it scrolls either way, and shrinking
@@ -208,6 +219,31 @@ The grid always renders whole Sunday–Saturday weeks, so the first and last wee
 days outside your period. Those slots are left blank — no square, no tooltip, not
 focusable — rather than being drawn as zero-contribution days.
 
+## Languages
+
+The library ships no translations. Day and month names come from `Intl` for whatever
+`locale` you pass, and the handful of strings `Intl` cannot derive are props:
+
+```tsx
+<ContributionHeatmap
+  locale="ca"
+  labels={{
+    less: 'Menys',
+    more: 'Més',
+    level: (level) => `Nivell ${level}`,
+    noContributions: 'Cap contribució',
+    contributions: (n) => (n === 1 ? '1 contribució' : `${n} contribucions`),
+  }}
+  data={{ contribution, period, weeks: groupByWeeks(contribution, { weekStartsOn: 1 }) }}
+/>
+```
+
+`weekStartsOn` matters as much as the strings: Catalan — like most of Europe — runs
+weeks Monday to Sunday, so a translated heatmap that still starts on Sunday reads as
+wrong. It defaults to `0` (Sunday, the GitHub convention), and the component picks the
+order of its day labels up from the data.
+
+
 ## Local development
 
 ```bash
@@ -221,7 +257,7 @@ npm run check:package  # publint + arethetypeswrong
 
 `demo/` is a single Vite app that serves as both the development sandbox and the site
 deployed to [heatmap.pearpages.com](https://heatmap.pearpages.com). It imports the library
-by its public specifier (`@pearpages/heatmap/example`) and resolves it two ways:
+by its public specifier (`@pearpages/heatmap`) and resolves it two ways:
 
 | Command | Resolves to | Use for |
 | --- | --- | --- |

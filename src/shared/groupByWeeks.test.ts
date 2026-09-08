@@ -52,4 +52,27 @@ describe('groupByWeeks', () => {
     expect(weeks[0][0].date).toBe('2024-01-07');
     expect(weeks[0][6].date).toBe('2024-01-13');
   });
+
+  it('starts weeks on Monday when asked', () => {
+    // 2024-01-01 is a Monday, so a Monday-start week needs no leading padding
+    // where a Sunday-start one pads back to 2023-12-31.
+    const weeks = groupByWeeks([day('2024-01-01'), day('2024-01-14')], { weekStartsOn: 1 });
+
+    expect(weeks[0][0].date).toBe('2024-01-01');
+    expect(weeks).toHaveLength(2);
+  });
+
+  it('pads back to the previous Monday when the range starts mid-week', () => {
+    // 2024-01-03 is a Wednesday.
+    const weeks = groupByWeeks([day('2024-01-03'), day('2024-01-10')], { weekStartsOn: 1 });
+
+    expect(weeks[0][0].date).toBe('2024-01-01');
+    expect(weeks[weeks.length - 1][6].date).toBe('2024-01-14');
+  });
+
+  it('defaults to a Sunday start', () => {
+    const weeks = groupByWeeks([day('2024-01-01'), day('2024-01-14')]);
+
+    expect(weeks[0][0].date).toBe('2023-12-31');
+  });
 });

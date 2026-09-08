@@ -19,12 +19,7 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./styles.css": "./dist/index.css",
-    "./example": {
-      "types": "./dist/example.d.ts",
-      "import": "./dist/example.js"
-    },
-    "./example.css": "./dist/example.css"
+    "./styles.css": "./dist/index.css"
   },
   "types": "./dist/index.d.ts",
   "files": [
@@ -40,7 +35,7 @@
     "lint": "eslint .",
     "test": "vitest",
     "test:run": "vitest run",
-    "check:package": "publint && attw --pack . --profile esm-only --exclude-entrypoints styles.css example.css",
+    "check:package": "publint && attw --pack . --profile esm-only --exclude-entrypoints styles.css",
     "prepublishOnly": "npm run build && npm run test:run && npm run check:package"
   },
   "peerDependencies": {
