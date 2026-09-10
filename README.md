@@ -40,8 +40,8 @@ import {
 import '@pearpages/heatmap/styles.css';
 
 const period: Period = {
-  start: new Date('2024-01-01'),
-  end: new Date('2024-12-31'),
+  start: new Date(2024, 0, 1),
+  end: new Date(2024, 11, 31),
 };
 
 const contribution: ContributionData[] = [
@@ -96,6 +96,27 @@ Two period helpers are exported for the common cases:
 import { getLastYearPeriod, getLastMonthPeriod } from '@pearpages/heatmap';
 ```
 
+Both run to today and start the day after the same date one year or one month earlier,
+clamped to the end of a shorter month — from 31 March the month window is 1–31 March.
+
+### Dates are local calendar days
+
+The library reads a `Period` boundary as the calendar day it falls on **in the local time
+zone**, and every `YYYY-MM-DD` string in `ContributionData` names a local day too. Build
+boundaries with the local constructor, `new Date(2024, 0, 1)`, or with the helpers above.
+A date-only ISO string such as `new Date('2024-01-01')` parses as **UTC** midnight, which
+is still 31 December anywhere west of Greenwich, so the first day of your period would
+vanish for those users.
+
+Two helpers convert between the two forms without going through UTC:
+
+```tsx
+import { createDateString, parseDateString } from '@pearpages/heatmap';
+
+createDateString(new Date(2024, 0, 5)); // '2024-01-05'
+parseDateString('2024-01-05');          // local midnight, 5 Jan 2024
+```
+
 To try the component out without wiring up real data:
 
 ```tsx
@@ -115,7 +136,7 @@ June–August, and the occasional spike. `false` is uniform random.
 | Prop | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `data.contribution` | `ContributionData[]` | required | Flat, one entry per day |
-| `data.period` | `Period` | required | `{ start: Date; end: Date }`. Drives the month headers and whether a tooltip reads as in-range |
+| `data.period` | `Period` | required | `{ start: Date; end: Date }`, read as local calendar days. Drives the month headers and whether a tooltip reads as in-range |
 | `data.weeks` | `Week[]` | required | 7-item tuples — use `groupByWeeks` |
 | `className` | `string` | `''` | Appended to the root element; this is how themes and the colour scheme are applied |
 | `isReverse` | `boolean` | `false` | Vertical layout: one row per week, weekdays as columns |

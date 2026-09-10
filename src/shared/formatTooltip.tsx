@@ -1,5 +1,6 @@
 import {
   createDateString,
+  parseDateString,
   defaultLabels,
   DEFAULT_LOCALE,
   type ContributionData,
@@ -26,15 +27,14 @@ const formatTooltip = (
   { locale = DEFAULT_LOCALE, labels }: FormatTooltipOptions = {},
 ): string => {
   const text = { ...defaultLabels, ...labels };
-  const date = new Date(contribution.date);
-  // UTC: contribution.date is a date-only string, which parses as UTC midnight.
-  // Formatting it in a local zone would name the previous day in negative offsets.
-  const formattedDate = date.toLocaleDateString(locale, {
+  // parseDateString gives local midnight, so formatting in the local zone names the
+  // right day. `new Date(string)` would parse as UTC midnight, which is the previous
+  // day anywhere west of Greenwich.
+  const formattedDate = parseDateString(contribution.date).toLocaleDateString(locale, {
     weekday: 'short',
     year: 'numeric',
     month: 'short',
     day: 'numeric',
-    timeZone: 'UTC',
   });
 
   if (!isInRange(contribution.date, { start, end }) || contribution.count === 0) {

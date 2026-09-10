@@ -411,14 +411,19 @@
   }
 }
 
-.contribution-heatmap {
-  animation: fadeInUp 0.6s ease-out;
+// A year is 371 staggered cells plus the card itself; none of it runs for users who
+// have asked their OS for less motion. The cells have no `from` state outside the
+// animation, so with it off they simply appear in place.
+@media (prefers-reduced-motion: no-preference) {
+  .contribution-heatmap {
+    animation: fadeInUp 0.6s ease-out;
 
-  // --animation-delay is set inline per cell and inherits into the pseudo-element.
-  &__day::before {
-    animation: fadeInUp 0.3s ease-out;
-    animation-delay: var(--animation-delay, 0s);
-    animation-fill-mode: both;
+    // --animation-delay is set inline per cell and inherits into the pseudo-element.
+    &__day::before {
+      animation: fadeInUp 0.3s ease-out;
+      animation-delay: var(--animation-delay, 0s);
+      animation-fill-mode: both;
+    }
   }
 }
 

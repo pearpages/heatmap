@@ -6,6 +6,7 @@ export {
   getLastYearPeriod,
   getLastMonthPeriod,
   createDateString,
+  parseDateString,
   monthNames,
   dayNames,
 } from './shared/models';

@@ -114,6 +114,10 @@ Two rules keep the grid honest; both were once broken and are easy to break agai
   gets `--last`, which anchors its label to the right so it overhangs inwards instead of
   extending the scroll area.
 
+Both load animations (the card's `fadeInUp` and the per-cell stagger) sit inside
+`@media (prefers-reduced-motion: no-preference)`. Keep new motion in there too: a year is
+371 staggered cells.
+
 ## Localisation
 
 The library ships **no translations**, deliberately. `src/shared/intl.ts` derives day and
@@ -123,9 +127,16 @@ month names from a `locale` via `Intl`; `HeatmapLabels` covers the few strings i
 existing output. Those constants stay exported — they are public API — they are simply no
 longer the component's internal source.
 
-Everything that formats a date pins `timeZone: 'UTC'`. Contribution dates are date-only
-strings that parse as UTC midnight, so formatting them in a local zone names the previous
-day anywhere west of Greenwich.
+**The library works in local calendar days, never UTC.** `createDateString` and
+`parseDateString` (`src/shared/models.tsx`) are the only conversions between `Date` and
+the `YYYY-MM-DD` strings the data carries, and both use local components. Never reach for
+`toISOString()` or `new Date('YYYY-MM-DD')`: both are UTC, and mixing them with the
+local-time `Date` constructors callers use for `Period` shifted the first and last day of
+a period by one — in Europe/Madrid a period starting Sun 9 Aug was generated as
+`2026-08-08`, a Saturday, which dragged a whole extra padding week into the grid, while
+in America/New_York the strings read back a day early and the week start flipped to
+Monday. The one exception is `src/shared/intl.ts`, which names weekdays and months from
+fixed `Date.UTC` reference instants and never touches contribution data.
 
 `weekStartsOn` lives on `groupByWeeks`, not on the component: the component reads the
 first day off `weeks[0][0].date`, so a prop can never disagree with the data it was
@@ -183,9 +194,12 @@ rows are the same table. `getMonthsForHeader.test.ts` asserts this twice, delibe
 All three plus the build run as gates in `publish.yml`, and again via `prepublishOnly` so
 a local `npm publish` can't skip them.
 
-`vitest.config.ts` pins **`TZ=UTC`**. This matters: `createDateString` formats via
-`toISOString()` (UTC) while `Period` boundaries are built with local-time `Date`
-constructors. Without the pin, the date tests fail in negative-offset timezones.
+`vitest.config.ts` pins **`TZ=UTC`** for determinism only, so fixtures written as
+`new Date('2024-01-01')` mean the same day on every machine. The code itself no longer
+depends on the zone: `src/shared/timezones.test.ts` sets `process.env.TZ` per test (Node
+honours it at runtime) and runs one end-to-end scenario in Madrid, New York and Auckland.
+Against the pre-fix code it failed 12 of 28 cases. Keep it — a UTC-only suite hides every
+offset bug.
 
 ## Releasing
 
@@ -193,20 +207,3 @@ Two independent pipelines: push to `main` deploys the demo and never touches npm
 a `v*` tag publishes to npm. The tag name does not set the version — `package.json` does.
 Use `npm version <patch|minor|major> && git push --follow-tags`. Full detail in the
 README's Releasing section.
-
-## TODO
-
-- [ ] **UTC/local date mismatch.** `createDateString` (`src/shared/models.tsx`) uses
-      `toISOString()` while periods are built with local-time `Date` constructors, so the
-      first and last day of a heatmap shift by one. It bites in *positive* offsets too,
-      not just negative ones: in Europe/Madrid a period starting Sun 9 Aug is generated
-      as `2026-08-08`, a Saturday, which drags a whole extra padding week into the grid.
-      Fix by formatting from local date components — and note that the `new Date(dateStr)`
-      parses elsewhere (`formatTooltip`, `getMonthsForHeader`) read as UTC, so they move
-      with it. Tests are in place as a safety net.
-- [ ] **`getLastMonthPeriod` short window.** From a 31st it computes e.g. Feb 32, which
-      normalises forward to Mar 3 — the "last month" window can be under four weeks and
-      never reach the previous month.
-- [ ] **No `prefers-reduced-motion` guard.** Every cell runs a `fadeInUp` on mount with a
-      staggered `--animation-delay` — 371 of them for a year — and the card itself
-      animates too. Wrap both in `@media (prefers-reduced-motion: no-preference)`.

@@ -1,4 +1,10 @@
-import { monthNames as defaultMonthNames, type Period, type Week } from '@/shared/models';
+import { isInRange } from '@/shared/formatTooltip';
+import {
+  monthNames as defaultMonthNames,
+  parseDateString,
+  type Period,
+  type Week,
+} from '@/shared/models';
 
 function getMonthsForHeader({
   weeks,
@@ -15,7 +21,6 @@ function getMonthsForHeader({
   start: number;
 }[] {
   const months: { name: string; span: number; start: number }[] = [];
-  const { start, end } = period;
   let currentMonth = -1;
   let currentSpan = 0;
 
@@ -23,13 +28,10 @@ function getMonthsForHeader({
     if (week.length > 0) {
       // Find the first day in the week that falls within our actual data range
       let monthToUse = -1;
-      const actualStartDate = new Date(start);
-      const actualEndDate = new Date(end);
 
       for (const day of week) {
-        const dayDate = new Date(day.date);
-        if (dayDate >= actualStartDate && dayDate <= actualEndDate) {
-          monthToUse = dayDate.getMonth();
+        if (isInRange(day.date, period)) {
+          monthToUse = parseDateString(day.date).getMonth();
           break;
         }
       }
@@ -38,7 +40,7 @@ function getMonthsForHeader({
       // (index 3 - which weekday that is depends on weekStartsOn)
       if (monthToUse === -1) {
         const middleDay = week[3];
-        monthToUse = new Date(middleDay.date).getMonth();
+        monthToUse = parseDateString(middleDay.date).getMonth();
       }
 
       if (monthToUse !== currentMonth) {

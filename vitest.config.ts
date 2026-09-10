@@ -11,9 +11,9 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     include: ['src/**/*.test.{ts,tsx}'],
-    // createDateString() formats via toISOString() (UTC) while Period boundaries are
-    // built with local-time Date constructors. Pin the zone so the suite is
-    // deterministic regardless of where it runs.
+    // Determinism only: the library no longer depends on the zone, and
+    // src/shared/timezones.test.ts overrides TZ per test to prove it. Pin the default
+    // so fixtures built with `new Date('2024-01-01')` mean the same day everywhere.
     env: { TZ: 'UTC' },
   },
 });

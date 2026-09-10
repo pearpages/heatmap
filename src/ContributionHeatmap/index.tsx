@@ -7,7 +7,7 @@ import type {
 } from '../shared/models';
 import { getMonthsForHeader } from './getMonthsForHeader';
 import { formatTooltip, isInRange } from '@/shared/formatTooltip';
-import { DEFAULT_LOCALE } from '@/shared/models';
+import { DEFAULT_LOCALE, parseDateString } from '@/shared/models';
 import { getDayNames, getMonthNames } from '@/shared/intl';
 import { Legend } from '@/shared/Legend';
 
@@ -67,7 +67,7 @@ function ContributionHeatmap({
 }: ContributionHeatmapProps) {
   // Read the week start off the data rather than taking a prop: groupByWeeks already
   // decided it, and a prop could disagree with the weeks it was handed.
-  const weekStartsOn = weeks.length ? new Date(weeks[0][0].date).getUTCDay() : 0;
+  const weekStartsOn = weeks.length ? parseDateString(weeks[0][0].date).getDay() : 0;
   const dayNames = getDayNames(locale, weekStartsOn);
   const months = getMonthsForHeader({ weeks, period, monthNames: getMonthNames(locale) });
 

@@ -1,4 +1,9 @@
-import { createDateString, type ContributionData, type Week } from '@/shared/models';
+import {
+  createDateString,
+  parseDateString,
+  type ContributionData,
+  type Week,
+} from '@/shared/models';
 
 const createEmpyContribution = (date: string): ContributionData => ({
   date,
@@ -66,9 +71,9 @@ const groupByWeeks = (
   const weeks: Week[] = [];
   const contributionMap = createContributionMap(contributions);
 
-  const firstDay = getFirstDayOfWeek(new Date(contributions[0].date), weekStartsOn);
+  const firstDay = getFirstDayOfWeek(parseDateString(contributions[0].date), weekStartsOn);
   const lastDate = getLastDayOfWeek(
-    new Date(contributions[contributions.length - 1].date),
+    parseDateString(contributions[contributions.length - 1].date),
     weekStartsOn,
   );
 
